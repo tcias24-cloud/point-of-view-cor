@@ -2,825 +2,790 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com data: blob:;">
-    <title>POV App - Neural CRM V33.3 (Titanium)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>POV App - Nexus V2 (Elite Edition)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
+        /* ==========================================================================
+           1. DESIGN SYSTEM & CSS VARIABLES
+           ========================================================================== */
         :root {
-            --bg-deep: #000000; --bg-card: #0c0c0c; --border-subtle: #222222;
-            --gold-pov: #D4AF37; --gold-dim: rgba(212, 175, 55, 0.15);
-            --text-main: #f0f0f0; --text-muted: #888888;
+            --bg-base: #050505; --bg-surface: #111111; --bg-elevated: #1a1a1a;
+            --accent-gold: #D4AF37; --accent-gold-dim: rgba(212, 175, 55, 0.15);
+            --text-primary: #F5F5F5; --text-secondary: #888888;
+            --border-color: #2A2A2A; --danger: #CF6679; --success: #03DAC6;
+            --radius-sm: 4px; --radius-md: 8px;
+            --font-display: 'Playfair Display', serif; --font-sans: 'Montserrat', sans-serif;
+            --transition-fast: 0.2s ease;
         }
 
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-deep); color: var(--text-main); padding: 15px; margin: 0; -webkit-font-smoothing: antialiased; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: var(--font-sans); background-color: var(--bg-base); color: var(--text-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
         
-        .header-brand { text-align: center; margin-bottom: 25px; margin-top: 10px; }
-        .header-brand h1 { font-family: 'Playfair Display', serif; color: var(--gold-pov); font-size: 24px; margin: 0; letter-spacing: 3px; font-weight: 600; text-transform: uppercase; }
-        .header-brand p { font-size: 10px; color: var(--text-muted); letter-spacing: 5px; text-transform: uppercase; margin-top: 5px; }
+        /* ==========================================================================
+           2. LAYOUT & CONTAINERS
+           ========================================================================== */
+        .app-container { max-width: 800px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
+        .hidden { display: none !important; }
+        
+        header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
+        header h1 { font-family: var(--font-display); color: var(--accent-gold); font-size: 28px; letter-spacing: 2px; text-transform: uppercase; }
+        header p { font-size: 10px; color: var(--text-secondary); letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
 
-        .card { background: var(--bg-card); padding: 25px 20px; border-radius: 2px; border: 1px solid var(--border-subtle); margin-bottom: 20px; position: relative; overflow: hidden; }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold-pov); opacity: 0.8; }
-        
-        h2 { font-family: 'Playfair Display', serif; margin-top: 0; font-size: 15px; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; color: var(--text-main); letter-spacing: 1px; font-weight: 400; }
-        h2 span { color: var(--gold-pov); margin-right: 8px; font-size: 14px; }
-        
-        .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 16px; font-size: 12px; font-weight: 600; border-radius: 2px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s; font-family: 'Montserrat', sans-serif; }
-        .btn-acao:active { transform: scale(0.98); }
-        .btn-acao:disabled { background-color: #333 !important; color: #666 !important; cursor: not-allowed; border: none !important; }
-        
-        .btn-gold { background-color: var(--gold-pov); color: #000; box-shadow: 0 4px 15px rgba(212,175,55,0.15); border: 1px solid #ebc64f; }
-        .btn-outline { background: transparent; color: var(--gold-pov); border: 1px solid var(--gold-pov); }
-        .btn-guardar { display: none; margin-top: 20px; }
-        
-        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .input-meta, .select-divisao { flex: 1; padding: 14px; border-radius: 2px; border: 1px solid var(--border-subtle); background: #111; color: #fff; font-size: 13px; font-family: inherit; transition: 0.3s; }
-        .input-meta:focus, .select-divisao:focus { outline: none; border-color: var(--gold-pov); background: #000; }
-        
-        .btn-mic-pequeno { background-color: #111; color: var(--gold-pov); border: 1px solid var(--border-subtle); border-radius: 2px; width: 48px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .btn-mic-pequeno.recording { background-color: #8b0000; color: #fff; border-color: #ff0000; }
-        
-        .hidden-input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1; }
-        
-        .upload-wrapper { background: #0a0a0a; border: 1px dashed var(--border-subtle); padding: 15px; border-radius: 2px; margin-bottom: 12px; text-align: center; transition: 0.3s; }
-        .upload-wrapper.loaded { border-color: var(--gold-pov); border-style: solid; background: var(--gold-dim); }
-        .lbl-doc-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 500; margin-bottom: 12px; display: block; letter-spacing: 1px; }
-        .lbl-doc-title.loaded { color: var(--gold-pov); }
-        
-        .dual-btn-container { display: flex; gap: 8px; width: 100%; justify-content: center; }
-        .btn-micro { background: #111; color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: 2px; padding: 12px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 500; display: block; margin: 0; text-align: center; letter-spacing: 1px; transition: 0.2s;}
-        .btn-micro:active { border-color: var(--gold-pov); color: var(--gold-pov); }
+        .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-gold); }
+        .card-title { font-family: var(--font-display); font-size: 16px; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--text-primary); letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
+        .card-title i { color: var(--accent-gold); font-style: normal; font-size: 18px; }
 
-        .ai-engine-box { border: 1px solid var(--gold-pov); background: #080808; padding: 20px; border-radius: 2px; text-align: center; margin-bottom: 15px; box-shadow: inset 0 0 20px rgba(212,175,55,0.05); }
-        .ai-title { font-family: 'Playfair Display', serif; color: var(--gold-pov); font-size: 16px; margin-bottom: 5px; }
-        .ai-subtitle { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        /* ==========================================================================
+           3. FORMS & INPUTS
+           ========================================================================== */
+        .input-group { margin-bottom: 16px; position: relative; display: flex; gap: 10px; }
+        .input-base { width: 100%; padding: 14px 16px; background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 13px; transition: var(--transition-fast); }
+        .input-base:focus { outline: none; border-color: var(--accent-gold); background: #000; box-shadow: 0 0 0 1px var(--accent-gold); }
+        textarea.input-base { resize: vertical; min-height: 80px; }
+
+        .btn { width: 100%; padding: 16px; border: none; border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: var(--transition-fast); margin-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--accent-gold); color: #000; }
+        .btn-secondary { background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); }
+        .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-icon { width: 48px; padding: 0; flex-shrink: 0; background: var(--bg-elevated); border: 1px solid var(--border-color); font-size: 18px; }
+        .btn-icon.active { background: #8b0000; border-color: var(--danger); color: white; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(207, 102, 121, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(207, 102, 121, 0); } 100% { box-shadow: 0 0 0 0 rgba(207, 102, 121, 0); } }
+
+        /* ==========================================================================
+           4. UPLOAD WIDGETS
+           ========================================================================== */
+        .upload-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 600px) { .upload-grid { grid-template-columns: 1fr 1fr; } }
         
-        #previewImagem { width: 100%; max-height: 300px; object-fit: cover; border-radius: 2px; margin-bottom: 15px; display: none; border: 1px solid var(--border-subtle); }
+        .upload-box { background: var(--bg-elevated); border: 1px dashed var(--border-color); padding: 20px 15px; border-radius: var(--radius-sm); text-align: center; transition: var(--transition-fast); }
+        .upload-box.has-file { border-color: var(--accent-gold); border-style: solid; background: var(--accent-gold-dim); }
+        .upload-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 1px; margin-bottom: 12px; display: block; }
+        .upload-box.has-file .upload-label { color: var(--accent-gold); }
         
-        .painel-ditado { display: none; align-items: flex-start; gap: 10px; margin-bottom: 10px; background: #0a0a0a; padding: 12px; border-radius: 2px; border: 1px solid var(--border-subtle); }
-        .btn-icone-mic { background-color: #222; color: var(--gold-pov); border: 1px solid var(--border-subtle); border-radius: 50%; width: 50px; height: 50px; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; transition: 0.3s; }
-        .btn-icone-mic.recording { background-color: #8b0000; border-color: #ff0000; color: #fff; }
-        .visor-texto { width: 100%; min-height: 80px; padding: 12px; border-radius: 2px; border: 1px solid transparent; background: #111; color: #fff; font-size: 13px; resize: none; font-family: inherit; line-height: 1.5; }
-        .visor-texto:focus { outline: none; border: 1px solid var(--gold-pov); }
+        .upload-actions { display: flex; gap: 8px; }
+        .upload-btn { flex: 1; padding: 10px 5px; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 9px; text-transform: uppercase; cursor: pointer; border-radius: 4px; }
+        .upload-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+        input[type="file"] { display: none; }
+
+        /* ==========================================================================
+           5. DASHBOARD & PIPELINE
+           ========================================================================== */
+        .pipeline-item { background: var(--bg-elevated); border: 1px solid var(--border-color); border-left: 3px solid var(--accent-gold); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: var(--transition-fast); }
+        .pipeline-item:hover { background: #222; }
+        .pipeline-title { font-family: var(--font-display); font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .pipeline-meta { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ==========================================================================
+           6. EDGE AI CAMERA & CANVAS
+           ========================================================================== */
+        .ai-hub { border: 1px solid var(--accent-gold); background: #000; padding: 20px; border-radius: var(--radius-sm); text-align: center; margin-bottom: 20px; box-shadow: inset 0 0 30px rgba(212,175,55,0.05); }
+        .ai-title { color: var(--accent-gold); font-family: var(--font-display); font-size: 14px; letter-spacing: 2px; margin-bottom: 4px; text-transform: uppercase; }
+        .ai-subtitle { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
         
-        .painel-tags { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .smart-tag { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 8px 14px; border-radius: 30px; font-size: 9px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; font-family: inherit; }
-        .smart-tag:active { border-color: var(--gold-pov); color: var(--gold-pov); background: var(--gold-dim); }
+        #preview-canvas { width: 100%; max-height: 350px; object-fit: contain; border-radius: var(--radius-sm); margin-bottom: 15px; border: 1px solid var(--border-color); background: var(--bg-elevated); display: none; }
         
-        .status { font-size: 9px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 500; letter-spacing: 2px; }
+        .smart-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .tag { padding: 8px 14px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .tag:active { background: var(--accent-gold-dim); border-color: var(--accent-gold); color: var(--accent-gold); }
+
+        .log-item { display: flex; gap: 15px; background: var(--bg-elevated); padding: 15px; border: 1px solid var(--border-color); border-left: 2px solid var(--accent-gold); margin-bottom: 12px; border-radius: var(--radius-sm); }
+        .log-img { width: 80px; height: 80px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid #333; }
+        .log-content { flex: 1; }
+        .log-badge { display: inline-block; font-size: 8px; background: #000; color: var(--accent-gold); padding: 4px 8px; border: 1px solid var(--accent-gold); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .log-text { font-size: 11px; color: #CCC; line-height: 1.4; white-space: pre-wrap; }
+
+        /* ==========================================================================
+           7. SIGNATURE
+           ========================================================================== */
+        .signature-pad { width: 100%; height: 200px; background: #FFF; border-radius: var(--radius-sm); touch-action: none; cursor: crosshair; }
         
-        #canvasAssinatura { width: 100%; height: 150px; background: #ffffff; border-radius: 2px; cursor: crosshair; touch-action: none; margin-bottom: 10px; }
-        .btn-limpar-canvas { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 10px; font-size: 10px; text-transform: uppercase; border-radius: 2px; cursor: pointer; width: 100%; margin-bottom: 15px; letter-spacing: 1px;}
-        
-        .foto-item-ui { background: #0a0a0a; padding: 15px; border-radius: 2px; margin-bottom: 10px; border-left: 2px solid var(--gold-pov); display: flex; align-items: flex-start; gap: 15px; border-bottom: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-top: 1px solid var(--border-subtle);}
-        .ui-img-box { width: 70px; height: 70px; border-radius: 2px; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid #333; }
-        .foto-item-ui p { font-size: 11px; margin: 0; flex: 1; color: #ccc; line-height: 1.5; white-space: pre-wrap; }
-        .badge-categoria { font-size: 8px; background: #111; color: var(--gold-pov); padding: 4px 8px; border-radius: 2px; text-transform: uppercase; margin-bottom: 6px; display: inline-block; letter-spacing: 1px; border: 1px solid #222;}
-        .btn-dl-img { background: transparent; color: var(--text-muted); border: 1px solid var(--border-subtle); border-radius: 2px; font-size: 8px; padding: 6px 10px; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
-        
-        #crm-dashboard { display: block; }
-        #app-ui-container { display: none; }
-        .crm-item { background: #0a0a0a; border: 1px solid var(--border-subtle); padding: 18px; border-radius: 2px; margin-bottom: 12px; cursor: pointer; border-left: 3px solid var(--gold-pov); transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
-        .crm-item:active { background: #111; }
-        .crm-title { font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px; font-family: 'Playfair Display', serif; letter-spacing: 0.5px;}
-        .crm-ref { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-voltar { background: transparent; color: var(--text-muted); border: none; padding: 10px 0; width: 100%; margin-bottom: 20px; text-transform: uppercase; font-size: 10px; cursor: pointer; letter-spacing: 2px; border-bottom: 1px solid var(--border-subtle); text-align: left;}
+        /* Hide PDF Engine */
+        #pdf-engine-zone { display: none; background: #FFF; color: #000; padding: 40px; }
     </style>
 </head>
 <body>
 
-    <div class="header-brand">
+    <header>
         <h1>POV<span>CRM</span></h1>
-        <p>Neural Enterprise System</p>
-    </div>
+        <p>Neural Enterprise System v2</p>
+    </header>
 
-    <div id="crm-dashboard">
-        <div class="card">
-            <h2><span>🗂️</span> Gestor de Portfólio</h2>
-            <div id="lista-crm" style="margin-bottom: 25px;"></div>
-            <button id="btnNovaPasta" class="btn-acao btn-gold">➕ INICIAR NOVO MANDATO</button>
-            <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #444; border: 1px solid #222; margin-top: 10px; font-size: 9px; box-shadow: none;">FORMATAR BASE DE DADOS</button>
-        </div>
-    </div>
-
-    <div id="app-ui-container">
-        <button id="btnVoltarCRM" class="btn-voltar">⬅ Voltar ao Portfólio</button>
+    <div class="app-container">
         
-        <div class="card">
-            <h2><span>🏢</span> 1. Identidade Corporativa</h2>
-            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência Oficial" style="border-color: var(--gold-pov);"></div>
-            <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
-            
-            <div class="upload-wrapper" id="wrap_logo">
-                <span class="lbl-doc-title" id="lblText_logo">📄 Logótipo da Agência</span>
-                <div class="dual-btn-container">
-                    <label for="fileLogo_gal" class="btn-micro">📂 Ficheiros</label>
-                    <input type="file" id="fileLogo_gal" class="hidden-input">
-                    <label for="fileLogo_cam" class="btn-micro">📸 Câmara</label>
-                    <input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input">
-                </div>
+        <div id="view-dashboard">
+            <div class="card">
+                <div class="card-title"><i>🗂️</i> Gestor de Portfólio</div>
+                <div id="pipeline-list" style="margin-bottom: 24px;"></div>
+                <button class="btn btn-primary" id="btn-new-mandate">➕ INICIAR NOVO MANDATO</button>
+                <button class="btn btn-danger" id="btn-format-db" style="font-size: 9px;">FORMATAR BASE DE DADOS GLOBAL</button>
             </div>
         </div>
 
-        <div class="card">
-            <h2><span>📍</span> 2. Referência do Ativo</h2>
-            <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="ID de Referência Interna"></div>
-            <div class="input-group">
-                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização Premium">
-                <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
-            </div>
-            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Target de Venda (€)"></div>
-        </div>
+        <div id="view-editor" class="hidden">
+            <button class="btn btn-secondary" id="btn-back" style="font-size: 10px; border: none; border-bottom: 1px solid var(--border-color); border-radius: 0; text-align: left; justify-content: flex-start; padding: 10px 0;">⬅ VOLTAR AO PORTFÓLIO</button>
 
-        <div class="card">
-            <h2><span>👤</span> 3. Entidade Proprietária</h2>
-            <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome do Titular"></div>
-            <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Contacto Direto"></div>
-            <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal Registada"></div>
-            
-            <div style="display: flex; gap: 10px;">
-                <div class="upload-wrapper" id="wrap_ccF" style="flex:1;">
-                    <span class="lbl-doc-title" id="lblText_ccF">ID (Frente)</span>
-                    <div class="dual-btn-container">
-                        <label for="fileCCF_gal" class="btn-micro">📂 Doc</label>
-                        <input type="file" id="fileCCF_gal" class="hidden-input">
-                        <label for="fileCCF_cam" class="btn-micro">📸 Câm</label>
-                        <input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input">
-                    </div>
-                </div>
-                <div class="upload-wrapper" id="wrap_ccV" style="flex:1;">
-                    <span class="lbl-doc-title" id="lblText_ccV">ID (Verso)</span>
-                    <div class="dual-btn-container">
-                        <label for="fileCCV_gal" class="btn-micro">📂 Doc</label>
-                        <input type="file" id="fileCCV_gal" class="hidden-input">
-                        <label for="fileCCV_cam" class="btn-micro">📸 Câm</label>
-                        <input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input">
+            <div class="card">
+                <div class="card-title"><i>🏢</i> 1. Identidade Corporativa</div>
+                <input type="text" id="m_agencia" class="input-base input-group" placeholder="Nome da Agência Oficial (White-label)">
+                <input type="text" id="m_ami" class="input-base input-group" placeholder="Licença AMI">
+                
+                <div class="upload-box" id="box_logo">
+                    <span class="upload-label" id="lbl_logo">Logótipo da Agência</span>
+                    <div class="upload-actions">
+                        <label class="upload-btn">📂 Doc <input type="file" accept="image/*" id="file_logo_doc"></label>
+                        <label class="upload-btn">📸 Câm <input type="file" accept="image/*" capture="environment" id="file_logo_cam"></label>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <h2><span>📂</span> 4. Conformidade Legal</h2>
-            
-            <div class="upload-wrapper" id="wrap_caderneta">
-                <span class="lbl-doc-title" id="lblText_caderneta">Caderneta Predial</span>
-                <div class="dual-btn-container">
-                    <label for="fileCaderneta_gal" class="btn-micro">📂 Ficheiros</label>
-                    <input type="file" id="fileCaderneta_gal" class="hidden-input">
-                    <label for="fileCaderneta_cam" class="btn-micro">📸 Câmara</label>
-                    <input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input">
+            <div class="card">
+                <div class="card-title"><i>📍</i> 2. Referência do Ativo</div>
+                <input type="text" id="m_ref" class="input-base input-group" placeholder="ID de Referência Interna">
+                <div class="input-group">
+                    <input type="text" id="m_local" class="input-base" placeholder="Localização Premium">
+                    <button class="btn-icon" id="mic-local">🎙️</button>
                 </div>
-            </div>
-            
-            <div class="upload-wrapper" id="wrap_registo">
-                <span class="lbl-doc-title" id="lblText_registo">Registo Predial</span>
-                <div class="dual-btn-container">
-                    <label for="fileRegisto_gal" class="btn-micro">📂 Ficheiros</label>
-                    <input type="file" id="fileRegisto_gal" class="hidden-input">
-                    <label for="fileRegisto_cam" class="btn-micro">📸 Câmara</label>
-                    <input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input">
-                </div>
+                <input type="text" id="m_preco" class="input-base input-group" placeholder="Target de Venda (€)">
             </div>
 
-            <div class="upload-wrapper" id="wrap_licenca">
-                <span class="lbl-doc-title" id="lblText_licenca">Licença de Utilização</span>
-                <div class="dual-btn-container">
-                    <label for="fileLicenca_gal" class="btn-micro">📂 Ficheiros</label>
-                    <input type="file" id="fileLicenca_gal" class="hidden-input">
-                    <label for="fileLicenca_cam" class="btn-micro">📸 Câmara</label>
-                    <input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input">
-                </div>
-            </div>
-
-            <div class="upload-wrapper" id="wrap_certificado">
-                <span class="lbl-doc-title" id="lblText_certificado">Certificado Energético</span>
-                <div class="dual-btn-container">
-                    <label for="fileCertificado_gal" class="btn-micro">📂 Ficheiros</label>
-                    <input type="file" id="fileCertificado_gal" class="hidden-input">
-                    <label for="fileCertificado_cam" class="btn-micro">📸 Câmara</label>
-                    <input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input">
-                </div>
-            </div>
-
-            <div class="upload-wrapper" id="wrap_outros">
-                <span class="lbl-doc-title" id="lblText_outros">Outros Documentos</span>
-                <div class="dual-btn-container">
-                    <label for="fileOutros_gal" class="btn-micro">📂 Ficheiros</label>
-                    <input type="file" id="fileOutros_gal" class="hidden-input">
-                    <label for="fileOutros_cam" class="btn-micro">📸 Câmara</label>
-                    <input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input">
-                </div>
-            </div>
-        </div>
-
-        <div class="card" style="border-color: var(--gold-pov);">
-            <h2><span>📷</span> 5. Motor de Vistoria Elite</h2>
-            <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 20px;">
-                <option value="Exterior / Fachada">Exterior / Fachada</option>
-                <option value="Hall de Entrada">Hall de Entrada</option>
-                <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
-                <option value="Cozinha">Cozinha</option>
-                <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
-                <option value="Quarto">Quarto</option>
-                <option value="Casa de Banho">Casa de Banho</option>
-                <option value="Jardim / Piscina">Jardim / Piscina</option>
-                <option value="Cave / Arrumos">Cave / Arrumos</option>
-            </select>
-
-            <div class="ai-engine-box">
-                <div class="ai-title">CINEMATIC GRADING</div>
-                <div class="ai-subtitle">Injeção de Luz Natural Local (Edge AI)</div>
+            <div class="card">
+                <div class="card-title"><i>👤</i> 3. Entidade Proprietária</div>
+                <input type="text" id="m_titular" class="input-base input-group" placeholder="Nome do Titular">
+                <input type="text" id="m_contacto" class="input-base input-group" placeholder="Contacto Direto">
+                <input type="text" id="m_morada" class="input-base input-group" placeholder="Morada Fiscal">
                 
-                <input type="file" accept="image/*" capture="environment" id="camera-input-edge" class="hidden-input">
-                <button id="btnCapturaEdge" class="btn-acao btn-gold" style="margin-bottom: 10px;">📸 CAPTURAR & VALORIZAR ATIVO</button>
-                
-                <input type="file" accept="image/*" id="gallery-input-edge" class="hidden-input">
-                <button id="btnGaleriaEdge" class="btn-acao btn-outline" style="margin-bottom: 0; font-size: 9px; padding: 12px;">📂 PROCESSAR DA GALERIA</button>
-                
-                <canvas id="processing-canvas-edge" style="display: none;"></canvas>
-            </div>
-            
-            <div class="status" id="micStatus">Aguardando Sensor Ótico...</div>
-            <img id="previewImagem" src="" alt="Preview">
-            
-            <div class="painel-ditado" id="painelDitado">
-                <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
-                <div style="width: 100%;">
-                    <textarea id="visorNota" class="visor-texto" placeholder="Dite a arquitetura e detalhes premium..."></textarea>
+                <div class="upload-grid">
+                    <div class="upload-box" id="box_cc_frente">
+                        <span class="upload-label" id="lbl_cc_frente">ID (Frente)</span>
+                        <div class="upload-actions">
+                            <label class="upload-btn">📂 <input type="file" accept="image/*" id="file_ccf_doc"></label>
+                            <label class="upload-btn">📸 <input type="file" accept="image/*" capture="environment" id="file_ccf_cam"></label>
+                        </div>
+                    </div>
+                    <div class="upload-box" id="box_cc_verso">
+                        <span class="upload-label" id="lbl_cc_verso">ID (Verso)</span>
+                        <div class="upload-actions">
+                            <label class="upload-btn">📂 <input type="file" accept="image/*" id="file_ccv_doc"></label>
+                            <label class="upload-btn">📸 <input type="file" accept="image/*" capture="environment" id="file_ccv_cam"></label>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="painel-tags" id="painelTags">
-                <button class="smart-tag" data-tag="Luz Natural Privilegiada">Luz Natural</button>
-                <button class="smart-tag" data-tag="Acabamentos de Alta Gama">Alta Gama</button>
-                <button class="smart-tag" data-tag="Design Contemporâneo">Design Atual</button>
-                <button class="smart-tag" data-tag="Layout Fluído">Layout</button>
-                <button class="smart-tag" data-tag="Áreas Generosas e Bem Distribuídas">Áreas</button>
-            </div>
-            
-            <button id="guardarBtn" class="btn-acao btn-gold btn-guardar">GUARDAR ESPAÇO E EXTRAIR GPS</button>
-        </div>
 
-        <div class="card">
-            <h2><span>✍️</span> 6. Validação Legal</h2>
-            <canvas id="canvasAssinatura"></canvas>
-            <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro de Assinatura</button>
-        </div>
-
-        <div class="card">
-            <h2><span>🗂️</span> Emissão C-Suite</h2>
-            <div class="input-group" style="margin-bottom: 20px;">
-                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nomenclatura do Relatório (Ex: POV_ID001)">
+            <div class="card">
+                <div class="card-title"><i>📂</i> 4. Conformidade Legal</div>
+                <div class="upload-grid">
+                    <div class="upload-box" id="box_caderneta">
+                        <span class="upload-label" id="lbl_caderneta">Caderneta Predial</span>
+                        <div class="upload-actions"><label class="upload-btn">📂 <input type="file" accept="image/*" id="file_cad_doc"></label><label class="upload-btn">📸 <input type="file" accept="image/*" capture="environment" id="file_cad_cam"></label></div>
+                    </div>
+                    <div class="upload-box" id="box_registo">
+                        <span class="upload-label" id="lbl_registo">Registo Predial</span>
+                        <div class="upload-actions"><label class="upload-btn">📂 <input type="file" accept="image/*" id="file_reg_doc"></label><label class="upload-btn">📸 <input type="file" accept="image/*" capture="environment" id="file_reg_cam"></label></div>
+                    </div>
+                    <div class="upload-box" id="box_licenca">
+                        <span class="upload-label" id="lbl_licenca">Licença Utilização</span>
+                        <div class="upload-actions"><label class="upload-btn">📂 <input type="file" accept="image/*" id="file_lic_doc"></label><label class="upload-btn">📸 <input type="file" accept="image/*" capture="environment" id="file_lic_cam"></label></div>
+                    </div>
+                    <div class="upload-box" id="box_certificado">
+                        <span class="upload-label" id="lbl_certificado">Cert. Energético</span>
+                        <div class="upload-actions"><label class="upload-btn">📂 <input type="file" accept="image/*" id="file_cer_doc"></label><label class="upload-btn">📸 <input type="file" accept="image/*" capture="environment" id="file_cer_cam"></label></div>
+                    </div>
+                </div>
             </div>
-            
-            <div id="log-ui" style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">Ainda sem registos técnicos processados.</div>
-            <button id="gerarPdfBtn" class="btn-acao btn-gold">GERAR PITCH DECK DE INVESTIMENTO (PDF)</button>
+
+            <div class="card" style="border-color: var(--accent-gold);">
+                <div class="card-title"><i>📷</i> 5. Motor de Vistoria Elite</div>
+                
+                <select id="ai_divisao" class="input-base input-group">
+                    <option value="Exterior / Fachada">Exterior / Fachada</option>
+                    <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
+                    <option value="Cozinha">Cozinha</option>
+                    <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
+                    <option value="Casa de Banho">Casa de Banho</option>
+                    <option value="Jardim / Piscina">Jardim / Piscina</option>
+                </select>
+
+                <div class="ai-hub">
+                    <div class="ai-title">Cinematic Grading</div>
+                    <div class="ai-subtitle">Filtro Natural de Alta Conversão (On-Device)</div>
+                    
+                    <div class="upload-actions" style="margin-bottom: 15px;">
+                        <label class="btn btn-primary" style="margin:0;">📸 CAPTURAR ATIVO <input type="file" accept="image/*" capture="environment" id="ai_cam_trigger"></label>
+                    </div>
+
+                    <canvas id="preview-canvas"></canvas>
+
+                    <div id="ai_editor_panel" class="hidden">
+                        <div class="input-group">
+                            <button class="btn-icon" id="mic-nota">🎙️</button>
+                            <textarea id="ai_nota" class="input-base" placeholder="Dite a arquitetura..."></textarea>
+                        </div>
+                        <div class="smart-tags" id="tag-container">
+                            <button class="tag">Luz Natural Privilegiada</button>
+                            <button class="tag">Acabamentos Alta Gama</button>
+                            <button class="tag">Layout Fluído</button>
+                            <button class="tag">Design Contemporâneo</button>
+                        </div>
+                        <button class="btn btn-primary" id="btn-save-ai" style="margin-top: 15px;">GUARDAR & EXTRAIR GPS</button>
+                    </div>
+                    <div id="ai_status" style="font-size: 10px; color: var(--text-secondary); margin-top: 10px; text-transform: uppercase;">Aguardando Sensor Ótico...</div>
+                </div>
+
+                <div id="log-vistorias"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i>✍️</i> 6. Validação Legal</div>
+                <canvas id="signature-pad" class="signature-pad"></canvas>
+                <button class="btn btn-secondary" id="btn-clear-sig" style="margin-top: 10px; font-size: 9px;">LIMPAR ASSINATURA</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i>🗂️</i> Emissão C-Suite</div>
+                <button class="btn btn-primary" id="btn-generate-pdf">GERAR PITCH DECK (PDF)</button>
+            </div>
         </div>
     </div>
 
-    <div id="pdf-render-zone"></div>
+    <div id="pdf-engine-zone"></div>
 
     <script>
         "use strict";
 
+        /**
+         * NEXUS V2 ARCHITECTURE
+         * ==========================================
+         * 1. IndexedDB Wrapper (Database)
+         * 2. State Manager (Store)
+         * 3. Hardware Services (AI Image, GPS, Voice)
+         * 4. UI Controllers & DOM Binding
+         * 5. PDF C-Suite Engine
+         */
+
         // ==========================================
-        // 1. UTILITÁRIOS E SEGURANÇA
+        // 1. DATABASE LAYER: INDEXEDDB
         // ==========================================
-        const escapeHTML = (str) => {
-            if (typeof str !== 'string') return '';
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])
-            );
-        };
+        const DB = (() => {
+            const dbName = 'POV_Nexus_DB';
+            const storeName = 'mandatos';
+            let db = null;
 
-        // Isolamento de Módulo (IIFE Patterns) para evitar poluição global
-        const POVApp = (function() {
-            // Estado Privado
-            let crmData = [];
-            let activeIndex = -1; 
-            let metadados = {}; 
-            let docsApp = {}; 
-            let memoriaApp = []; 
-            let assinaturaSalvaBase64 = "";
-            let tempImagemBase64 = "";
-            let assinando = false; 
-            let temAssinatura = false; 
-
-            // Caching de Elementos do DOM (Performance)
-            const DOM = {
-                uiDashboard: document.getElementById('crm-dashboard'),
-                uiEditor: document.getElementById('app-ui-container'),
-                listaCRM: document.getElementById('lista-crm'),
-                canvasAssinatura: document.getElementById('canvasAssinatura'),
-                ctxAssinatura: document.getElementById('canvasAssinatura')?.getContext('2d'),
-                logUi: document.getElementById('log-ui'),
-                pdfZone: document.getElementById('pdf-render-zone')
-            };
-
-            const docKeys = [
-                { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
-                { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'ID (Frente)' },
-                { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'ID (Verso)' },
-                { key: 'caderneta', idText: 'lblText_caderneta', idWrap: 'wrap_caderneta', txt: 'Caderneta Predial' },
-                { key: 'registo', idText: 'lblText_registo', idWrap: 'wrap_registo', txt: 'Registo Predial' },
-                { key: 'licenca', idText: 'lblText_licenca', idWrap: 'wrap_licenca', txt: 'Licença de Utilização' },
-                { key: 'certificado', idText: 'lblText_certificado', idWrap: 'wrap_certificado', txt: 'Certificado Energético' },
-                { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
-            ];
-
-            const mapMeta = [
-                { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
-                { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
-                { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
-            ];
-
-            // ==========================================
-            // 2. CAMADA DE PERSISTÊNCIA (COM TRATAMENTO QUOTA)
-            // ==========================================
-            const loadData = () => {
-                try {
-                    const cache = localStorage.getItem('pov_crm_v33_master');
-                    if (cache) { crmData = JSON.parse(cache); if (!Array.isArray(crmData)) crmData = []; }
-                } catch(e) { 
-                    console.warn("Storage Error: Inicializando DB vazio.");
-                    crmData = []; 
-                }
-            };
-
-            const guardarNoCRM = () => {
-                if (activeIndex === -1) return;
-                crmData[activeIndex] = {
-                    id: crmData[activeIndex].id || Date.now(),
-                    titulo: metadados.local || metadados.ref || `Novo Mandato ${activeIndex + 1}`,
-                    data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
-                    meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
+            const init = () => new Promise((resolve, reject) => {
+                const req = indexedDB.open(dbName, 1);
+                req.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains(storeName)) {
+                        database.createObjectStore(storeName, { keyPath: 'id' });
+                    }
                 };
-                
-                try {
-                    localStorage.setItem('pov_crm_v33_master', JSON.stringify(crmData));
-                } catch (error) {
-                    console.error("OVERFLOW MEMORY:", error);
-                    alert("⚠️ ALERTA CRÍTICO: OVERFLOW DE MEMÓRIA (QuotaExceededError)\nO limite de 5MB do LocalStorage foi excedido. Exporte o Pitch Deck (PDF) imediatamente para não perder dados da sessão atual, e formate a base de dados.");
-                }
-                renderizarDashboard();
+                req.onsuccess = (e) => { db = e.target.result; resolve(); };
+                req.onerror = (e) => reject("DB Error: " + e.target.error);
+            });
+
+            const getAll = () => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const req = tx.objectStore(storeName).getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => reject(req.error);
+            });
+
+            const save = (mandato) => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                tx.objectStore(storeName).put(mandato);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+
+            const clearAll = () => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                tx.objectStore(storeName).clear();
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+
+            return { init, getAll, save, clearAll };
+        })();
+
+        // ==========================================
+        // 2. STATE MANAGER (SINGLE SOURCE OF TRUTH)
+        // ==========================================
+        const Store = (() => {
+            let list = [];
+            let currentId = null;
+
+            const load = async () => { list = await DB.getAll(); };
+            
+            const createNew = async () => {
+                const newMandato = {
+                    id: Date.now().toString(),
+                    date: new Date().toLocaleDateString('pt-PT'),
+                    meta: { agencia: '', ami: '', ref: '', local: '', preco: '', titular: '', contacto: '', morada: '' },
+                    docs: {}, // { logo, cc_frente, cc_verso, caderneta, registo, licenca, certificado }
+                    fotos: [], // { divisao, imgBase64, nota, gps, date }
+                    signature: null
+                };
+                await DB.save(newMandato);
+                list.push(newMandato);
+                currentId = newMandato.id;
+                return newMandato;
             };
 
-            // ==========================================
-            // 3. CAMADA DE RENDERIZAÇÃO (O(N) OTIMIZADO)
-            // ==========================================
-            const renderizarDashboard = () => {
-                if(crmData.length === 0) { 
-                    DOM.listaCRM.innerHTML = "<p style='color:#666; font-size:11px; text-transform: uppercase;'>Sem registos ativos no pipeline.</p>"; 
-                    return; 
-                }
+            const getCurrent = () => list.find(m => m.id === currentId);
+            
+            const updateCurrent = async (updaterFn) => {
+                const item = getCurrent();
+                if (!item) return;
+                updaterFn(item);
+                await DB.save(item); // Persiste assincronamente a cada mutação
+            };
+
+            const setCurrentId = (id) => { currentId = id; };
+            const getList = () => list;
+
+            const purge = async () => { await DB.clearAll(); list = []; currentId = null; };
+
+            return { load, createNew, getCurrent, updateCurrent, setCurrentId, getList, purge };
+        })();
+
+        // ==========================================
+        // 3. HARDWARE & LOGIC SERVICES
+        // ==========================================
+        const Services = (() => {
+            // A. Conversor Seguro de HTML (Evita XSS no PDF)
+            const escapeHTML = (str) => typeof str !== 'string' ? '' : str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
+
+            // B. Processador de Imagem (Resize + Edge AI)
+            const processImage = (file, applyGrading = false, maxW = 1200) => new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) return reject("Formato inválido");
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                        ctx.drawImage(img, 0, 0, w, h);
+
+                        if (applyGrading) {
+                            const imageData = ctx.getImageData(0, 0, w, h);
+                            const data = imageData.data;
+                            const contrast = 1.15, brightness = 15;
+                            for (let i = 0; i < data.length; i += 4) {
+                                let r = data[i], g = data[i + 1], b = data[i + 2];
+                                // Fórmula FAANG-Level para Cinematic Grading (Contrast + Warm Tint)
+                                r = ((r / 255 - 0.5) * contrast + 0.5) * 255 + brightness + 20; // Red
+                                g = ((g / 255 - 0.5) * contrast + 0.5) * 255 + brightness + 10; // Green
+                                b = ((b / 255 - 0.5) * contrast + 0.5) * 255 + brightness - 5;  // Blue
+                                data[i] = Math.min(255, Math.max(0, r));
+                                data[i+1] = Math.min(255, Math.max(0, g));
+                                data[i+2] = Math.min(255, Math.max(0, b));
+                            }
+                            ctx.putImageData(imageData, 0, 0);
+                        }
+                        // JPEG 80% mantém qualidade ArchViz e poupa 70% RAM
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // C. Voice Recognition API
+            const dictate = (targetInputId, btnElement) => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) { alert("Ditado nativo bloqueado por este browser."); return; }
+                const rec = new SpeechRecognition();
+                rec.lang = 'pt-PT'; rec.continuous = false;
+                const target = document.getElementById(targetInputId);
                 
-                // Mapeamento em O(n) sem reflows na árvore até inserção
-                const markup = crmData.map((pasta, index) => `
-                    <div class="crm-item" data-index="${index}">
+                rec.onstart = () => btnElement.classList.add('active');
+                rec.onresult = (e) => {
+                    const transcript = e.results.transcript;
+                    target.value = target.value ? `${target.value} ${transcript}` : transcript;
+                    // Trigger manual change event to save to store
+                    target.dispatchEvent(new Event('input')); 
+                };
+                rec.onend = () => btnElement.classList.remove('active');
+                rec.onerror = () => btnElement.classList.remove('active');
+                rec.start();
+            };
+
+            // D. GPS Telemetry
+            const getGPS = () => new Promise((resolve) => {
+                if (!navigator.geolocation) return resolve("GPS N/A");
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`),
+                    (err) => resolve("Sinal GPS Oculto"),
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            });
+
+            return { escapeHTML, processImage, dictate, getGPS };
+        })();
+
+        // ==========================================
+        // 4. UI CONTROLLER (DOM BINDING & RENDERING)
+        // ==========================================
+        const UI = (() => {
+            // Elements caching
+            const views = { dash: document.getElementById('view-dashboard'), editor: document.getElementById('view-editor') };
+            const els = {
+                pipeList: document.getElementById('pipeline-list'),
+                inputs: ['m_agencia', 'm_ami', 'm_ref', 'm_local', 'm_preco', 'm_titular', 'm_contacto', 'm_morada'],
+                uploadDocs: ['logo', 'cc_frente', 'cc_verso', 'caderneta', 'registo', 'licenca', 'certificado'],
+                aiCanvas: document.getElementById('preview-canvas'),
+                aiEditor: document.getElementById('ai_editor_panel'),
+                aiNota: document.getElementById('ai_nota'),
+                aiStatus: document.getElementById('ai_status'),
+                logVistorias: document.getElementById('log-vistorias'),
+                sigPad: document.getElementById('signature-pad')
+            };
+
+            let sigCtx = null;
+            let tempAIBase64 = null;
+            let isDrawing = false;
+
+            // -- RENDERERS --
+            const renderDashboard = () => {
+                const list = Store.getList();
+                if (list.length === 0) {
+                    els.pipeList.innerHTML = `<p style="font-size:11px; color:#666;">PIPELINE VAZIO.</p>`;
+                    return;
+                }
+                els.pipeList.innerHTML = list.map(m => `
+                    <div class="pipeline-item" data-id="${m.id}">
                         <div>
-                            <div class="crm-title">${escapeHTML(pasta.titulo)}</div>
-                            <div class="crm-ref">${escapeHTML(pasta.data)} | 📷 ${pasta.fotos ? pasta.fotos.length : 0} Ativos Visuais</div>
+                            <div class="pipeline-title">${Services.escapeHTML(m.meta.local || m.meta.ref || 'Novo Mandato')}</div>
+                            <div class="pipeline-meta">ID: ${m.id.substring(m.id.length-4)} | 📷 ${m.fotos.length} Ativos | ${m.date}</div>
                         </div>
-                        <div style="color:var(--gold-pov); font-size:16px;">➔</div>
+                        <div style="color: var(--accent-gold);">➔</div>
                     </div>
                 `).join('');
-                DOM.listaCRM.innerHTML = markup;
             };
 
-            const renderizarInterface = () => {
-                if(memoriaApp.length === 0) { 
-                    DOM.logUi.innerHTML = "Ainda sem registos nesta pasta."; 
-                    return; 
-                }
-                
-                const markup = memoriaApp.map((item, index) => {
-                    const txt = item.texto.length > 0 ? escapeHTML(item.texto) : "Sem notas estruturais.";
-                    return `
-                    <div class="foto-item-ui">
-                        <div class="ui-img-box" style="background-image: url('${escapeHTML(item.imagem)}');"></div>
-                        <div style="flex:1;">
-                            <div class="badge-categoria">${escapeHTML(item.categoria)}</div>
-                            <p>${txt}</p>
-                            <button class="btn-dl-img btn-download-memoria" data-index="${index}">⬇ Descarregar Mídia Valorizada</button>
-                        </div>
-                    </div>`;
-                }).join('');
-                
-                DOM.logUi.innerHTML = markup;
-            };
+            const renderEditor = () => {
+                const item = Store.getCurrent();
+                if(!item) return;
 
-            // ==========================================
-            // 4. LÓGICA DE INTERFACE E EVENTOS
-            // ==========================================
-            const resetarCameraVisual = () => {
-                tempImagemBase64 = "";
-                document.getElementById('previewImagem').style.display = "none";
-                document.getElementById('previewImagem').src = "";
-                document.getElementById('painelDitado').style.display = "none";
-                document.getElementById('painelTags').style.display = "none";
-                document.getElementById('guardarBtn').style.display = "none";
-                document.getElementById('visorNota').value = "";
-                document.getElementById('micStatus').innerText = "Aguardando Sensor Ótico...";
-                document.getElementById('micStatus').style.color = "var(--text-muted)";
-            };
+                // Bind Text Inputs
+                els.inputs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.value = item.meta[id.replace('m_', '')] || '';
+                });
 
-            const inicializarCanvas = () => { 
-                if(!DOM.canvasAssinatura) return;
-                const r = DOM.canvasAssinatura.parentElement.getBoundingClientRect(); 
-                DOM.canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; 
-                DOM.canvasAssinatura.height = 150; 
-                DOM.ctxAssinatura.lineWidth = 2; 
-                DOM.ctxAssinatura.lineCap = 'round'; 
-                DOM.ctxAssinatura.strokeStyle = '#000'; 
-            };
-
-            const abrirPasta = (index) => {
-                activeIndex = parseInt(index, 10);
-                const pasta = crmData[activeIndex];
-                metadados = pasta.meta || {}; docsApp = pasta.docs || {}; memoriaApp = pasta.fotos || []; assinaturaSalvaBase64 = pasta.assinatura || "";
-                
-                mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
-                
-                docKeys.forEach(d => {
-                    const txtEl = document.getElementById(d.idText);
-                    const wrapEl = document.getElementById(d.idWrap);
-                    if(docsApp[d.key]) {
-                        txtEl.innerText = "✅ " + d.txt;
-                        txtEl.classList.add('loaded'); wrapEl.classList.add('loaded');
+                // Bind Upload Boxes State
+                els.uploadDocs.forEach(key => {
+                    const box = document.getElementById(`box_${key}`);
+                    const lbl = document.getElementById(`lbl_${key}`);
+                    const originalTxt = lbl.innerText.replace('✅ ', '');
+                    if (item.docs[key]) {
+                        box.classList.add('has-file'); lbl.innerText = `✅ ${originalTxt}`;
                     } else {
-                        txtEl.innerText = d.txt;
-                        txtEl.classList.remove('loaded'); wrapEl.classList.remove('loaded');
+                        box.classList.remove('has-file'); lbl.innerText = originalTxt;
                     }
                 });
 
-                resetarCameraVisual();
-                renderizarInterface();
-                
-                DOM.uiDashboard.style.display = "none"; 
-                DOM.uiEditor.style.display = "block"; 
-                window.scrollTo(0,0);
+                // Render AI Logs
+                if (item.fotos.length === 0) els.logVistorias.innerHTML = `<div style="font-size:10px; color:#666;">Sem ativos visuais processados.</div>`;
+                else {
+                    els.logVistorias.innerHTML = item.fotos.map(f => `
+                        <div class="log-item">
+                            <img src="${f.imgBase64}" class="log-img">
+                            <div class="log-content">
+                                <div class="log-badge">${Services.escapeHTML(f.divisao)}</div>
+                                <div class="log-text">${Services.escapeHTML(f.nota)}</div>
+                                <div style="font-size:8px; color:#555; margin-top:5px; font-family:monospace;">${f.gps}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
 
-                setTimeout(() => { 
-                    inicializarCanvas(); 
-                    if(assinaturaSalvaBase64 !== "") { 
-                        const img = new Image(); 
-                        img.onload = () => DOM.ctxAssinatura.drawImage(img, 0, 0); 
-                        img.src = assinaturaSalvaBase64; 
-                        temAssinatura = true; 
-                    } else { temAssinatura = false; }
-                }, 100);
+                // Render Signature
+                sigCtx.clearRect(0,0, els.sigPad.width, els.sigPad.height);
+                if (item.signature) {
+                    const img = new Image();
+                    img.onload = () => sigCtx.drawImage(img, 0, 0);
+                    img.src = item.signature;
+                }
+
+                // Reset AI Panel
+                els.aiCanvas.style.display = 'none';
+                els.aiEditor.classList.add('hidden');
+                els.aiNota.value = '';
+                els.aiStatus.innerText = "Aguardando Sensor...";
             };
 
-            const setupDualDocUpload = (idGal, idCam, lblTextId, wrapId, docKey, originalText) => {
-                const handleFile = (e) => {
-                    const file = e.target.files; 
-                    if(!file) return;
-                    if (!file.type.startsWith('image/')) { alert("⚠️ Entrada rejeitada. Formato não visual."); e.target.value = ""; return; }
+            const navigate = (view) => {
+                Object.values(views).forEach(v => v.classList.add('hidden'));
+                if (view === 'dash') {
+                    renderDashboard(); views.dash.classList.remove('hidden');
+                } else if (view === 'editor') {
+                    renderEditor(); views.editor.classList.remove('hidden');
+                    // Resize canvas properly when visible
+                    setTimeout(() => {
+                        const rect = els.sigPad.parentElement.getBoundingClientRect();
+                        els.sigPad.width = rect.width - 48; // padding
+                        els.sigPad.height = 200;
+                        sigCtx = els.sigPad.getContext('2d');
+                        sigCtx.lineWidth = 2; sigCtx.strokeStyle = "#000";
+                        renderEditor(); // Re-render signature onto sized canvas
+                    }, 100);
+                }
+                window.scrollTo(0,0);
+            };
 
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
+            // -- EVENT BINDINGS --
+            const bindEvents = () => {
+                // Dashboard
+                document.getElementById('btn-new-mandate').addEventListener('click', async () => {
+                    await Store.createNew(); navigate('editor');
+                });
+                els.pipeList.addEventListener('click', (e) => {
+                    const el = e.target.closest('.pipeline-item');
+                    if (el) { Store.setCurrentId(el.dataset.id); navigate('editor'); }
+                });
+                document.getElementById('btn-back').addEventListener('click', () => navigate('dash'));
+                document.getElementById('btn-format-db').addEventListener('click', async () => {
+                    if(confirm("ALERTA C-SUITE: Destruir todos os dados permanentemente?")) { await Store.purge(); renderDashboard(); }
+                });
+
+                // Inputs Meta Binding
+                els.inputs.forEach(id => {
+                    document.getElementById(id).addEventListener('input', (e) => {
+                        Store.updateCurrent(item => { item.meta[id.replace('m_', '')] = e.target.value; });
+                    });
+                });
+
+                // Voice Mic
+                document.getElementById('mic-local').addEventListener('click', function() { Services.dictate('m_local', this); });
+                document.getElementById('mic-nota').addEventListener('click', function() { Services.dictate('ai_nota', this); });
+
+                // Docs Uploader Factories
+                els.uploadDocs.forEach(key => {
+                    const handleDoc = async (e) => {
+                        if (!e.target.files) return;
+                        try {
+                            const base64 = await Services.processImage(e.target.files, false, 800); // Sem filtro, res media
+                            await Store.updateCurrent(item => { item.docs[key] = base64; });
+                            renderEditor();
+                        } catch(err) { alert(err); }
+                    };
+                    const docEl = document.getElementById(`file_${key.substring(0,3)}_doc`);
+                    const camEl = document.getElementById(`file_${key.substring(0,3)}_cam`);
+                    if(docEl) docEl.addEventListener('change', handleDoc);
+                    if(camEl) camEl.addEventListener('change', handleDoc);
+                });
+
+                // Edge AI Motor
+                document.getElementById('ai_cam_trigger').addEventListener('change', async (e) => {
+                    if (!e.target.files) return;
+                    els.aiStatus.innerText = "A aplicar Cinematic Grading...";
+                    try {
+                        tempAIBase64 = await Services.processImage(e.target.files, true, 1200);
+                        els.aiCanvas.style.display = 'block';
+                        els.aiCanvas.getContext('2d').clearRect(0,0,els.aiCanvas.width, els.aiCanvas.height);
                         const img = new Image();
                         img.onload = () => {
-                            const canvas = document.createElement('canvas'); 
-                            const maxW = docKey === 'logo' ? 400 : 800; 
-                            let w = img.width, h = img.height; 
-                            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-                            canvas.width = w; canvas.height = h; 
-                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                            docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.8); 
-                            guardarNoCRM();
-                            
-                            const lblText = document.getElementById(lblTextId);
-                            const wrapEl = document.getElementById(wrapId);
-                            lblText.innerText = "✅ " + originalText;
-                            lblText.classList.add('loaded'); wrapEl.classList.add('loaded');
+                            els.aiCanvas.width = img.width; els.aiCanvas.height = img.height;
+                            els.aiCanvas.getContext('2d').drawImage(img, 0, 0);
                         }
-                        img.src = event.target.result;
+                        img.src = tempAIBase64;
+                        els.aiEditor.classList.remove('hidden');
+                        els.aiStatus.innerText = "Processamento Edge Concluído.";
+                    } catch(err) { els.aiStatus.innerText = "Erro ao processar imagem."; }
+                    e.target.value = '';
+                });
+
+                // Smart Tags
+                document.getElementById('tag-container').addEventListener('click', (e) => {
+                    if(e.target.classList.contains('tag')) {
+                        const val = els.aiNota.value.trim();
+                        els.aiNota.value = val + (val ? '\n' : '') + '✦ ' + e.target.innerText;
                     }
-                    reader.readAsDataURL(file);
+                });
+
+                // Save AI Asset
+                document.getElementById('btn-save-ai').addEventListener('click', async () => {
+                    els.aiStatus.innerText = "A extrair Telemetria GPS...";
+                    const gps = await Services.getGPS();
+                    await Store.updateCurrent(item => {
+                        item.fotos.push({
+                            divisao: document.getElementById('ai_divisao').value,
+                            imgBase64: tempAIBase64,
+                            nota: els.aiNota.value.trim(),
+                            gps: gps,
+                            date: new Date().toLocaleString('pt-PT')
+                        });
+                    });
+                    renderEditor();
+                });
+
+                // Signature Canvas Logic
+                const getPos = (e) => {
+                    const rect = els.sigPad.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches.clientX : e.clientX;
+                    const clientY = e.touches ? e.touches.clientY : e.clientY;
+                    return { x: clientX - rect.left, y: clientY - rect.top };
                 };
-                document.getElementById(idGal).addEventListener('change', handleFile); 
-                document.getElementById(idCam).addEventListener('change', handleFile);
+                const startSig = (e) => { if(e.type==='touchstart') e.preventDefault(); isDrawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); };
+                const drawSig = (e) => { if(e.type==='touchmove') e.preventDefault(); if(!isDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); };
+                const stopSig = async () => { 
+                    if(!isDrawing) return; isDrawing = false; 
+                    // Save silently
+                    await Store.updateCurrent(item => { item.signature = els.sigPad.toDataURL('image/png'); });
+                };
+
+                els.sigPad.addEventListener('mousedown', startSig); els.sigPad.addEventListener('mousemove', drawSig); 
+                els.sigPad.addEventListener('mouseup', stopSig); els.sigPad.addEventListener('mouseout', stopSig);
+                els.sigPad.addEventListener('touchstart', startSig, {passive:false}); els.sigPad.addEventListener('touchmove', drawSig, {passive:false}); els.sigPad.addEventListener('touchend', stopSig);
+
+                document.getElementById('btn-clear-sig').addEventListener('click', async () => {
+                    sigCtx.clearRect(0,0, els.sigPad.width, els.sigPad.height);
+                    await Store.updateCurrent(item => { item.signature = null; });
+                });
+
+                // PDF Generate
+                document.getElementById('btn-generate-pdf').addEventListener('click', PDFEngine.generate);
             };
 
-            // ==========================================
-            // 5. MOTOR AI EDGE E PDF (FIX DO BUG CRÍTICO)
-            // ==========================================
-            const concluirCapturaVistoria = (base64Image) => {
-                tempImagemBase64 = base64Image; 
-                document.getElementById('previewImagem').src = tempImagemBase64;
-                document.getElementById('previewImagem').style.display = "block"; 
-                document.getElementById('painelDitado').style.display = "flex";
-                document.getElementById('painelTags').style.display = "flex"; 
-                document.getElementById('visorNota').value = "";
-                document.getElementById('micStatus').innerText = "Processamento Edge Concluído. Extraia a metadata.";
-                document.getElementById('micStatus').style.color = "var(--text-muted)";
-                document.getElementById('guardarBtn').style.display = "block";
-            };
+            return { navigate, bindEvents };
+        })();
 
-            const descarregarFoto = (indexFoto) => {
-                if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
-                const item = memoriaApp[indexFoto]; 
-                const a = document.createElement('a'); 
-                a.href = item.imagem;
-                a.download = `POV_Render_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${parseInt(indexFoto)+1}.jpg`;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            };
+        // ==========================================
+        // 5. C-SUITE PDF ENGINE
+        // ==========================================
+        const PDFEngine = (() => {
+            const generate = async () => {
+                const btn = document.getElementById('btn-generate-pdf');
+                btn.innerText = "⏳ COMPILANDO PITCH DECK..."; btn.disabled = true;
 
-            const gerarPDF = (btnContext) => {
-                const btn = btnContext; 
-                btn.innerText = "⏳ A COMPILAR PITCH DECK... (Aguarde)"; 
-                btn.disabled = true;
-
-                let nomeFicheiroFinal = document.getElementById('inputNomePdf').value.trim();
-                if (nomeFicheiroFinal === "") nomeFicheiroFinal = `POV_PitchDeck_${metadados.ref || Date.now()}.pdf`;
-                if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
-
-                DOM.pdfZone.style.display = 'block';
-
-                let htmlString = `<div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">`;
+                const item = Store.getCurrent();
+                const zone = document.getElementById('pdf-engine-zone');
                 
-                htmlString += `
-                    <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
+                // HTML Builder para A4
+                let html = `
+                <div style="font-family:'Montserrat',sans-serif; color:#000; width:100%;">
+                    <table style="width:100%; border-bottom:2px solid #d4af37; padding-bottom:15px; margin-bottom:20px;">
                         <tr>
-                            <td style="width: 50%; vertical-align: middle;">
-                                ${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">PITCH DECK DE INVESTIMENTO</h1>`}
+                            <td style="width:50%; vertical-align:middle;">
+                                ${item.docs.logo ? `<img src="${item.docs.logo}" style="max-height:60px; max-width:250px;">` : `<h2 style="margin:0; font-family:'Playfair Display',serif;">PITCH DECK</h2>`}
                             </td>
-                            <td style="width: 50%; text-align: right; vertical-align: middle;">
-                                <div style="font-weight: 700; font-size: 16px; color: #111;">${escapeHTML(metadados.agencia) || "Entidade Não Definida"}</div>
-                                <div style="font-size: 10px; color: #666; margin-top: 4px;">REGISTO OFICIAL: ${escapeHTML(metadados.ami) || "N/A"}</div>
+                            <td style="width:50%; text-align:right; vertical-align:middle;">
+                                <div style="font-weight:700; font-size:16px;">${Services.escapeHTML(item.meta.agencia) || "Consultoria Premium"}</div>
+                                <div style="font-size:10px; color:#666;">AMI: ${Services.escapeHTML(item.meta.ami) || "N/A"}</div>
                             </td>
                         </tr>
                     </table>
-                    <h3 style="color:#d4af37; font-family:'Playfair Display',serif;">Dados do Ativo</h3>
-                    <p>Referência: ${escapeHTML(metadados.ref) || "N/A"} <br> Local: ${escapeHTML(metadados.local) || "N/A"} <br> Target: ${escapeHTML(metadados.preco) || "N/A"}</p>
+
+                    <div style="display:flex; gap:20px; margin-bottom:30px;">
+                        <div style="flex:1; background:#f9f9f9; padding:15px; border-left:3px solid #d4af37;">
+                            <div style="font-size:10px; color:#888; text-transform:uppercase; margin-bottom:10px;">Telemetria do Ativo</div>
+                            <div style="font-size:12px; margin-bottom:5px;"><b>Ref:</b> ${Services.escapeHTML(item.meta.ref)}</div>
+                            <div style="font-size:12px; margin-bottom:5px;"><b>Local:</b> ${Services.escapeHTML(item.meta.local)}</div>
+                            <div style="font-size:12px;"><b>Target:</b> ${Services.escapeHTML(item.meta.preco)}</div>
+                        </div>
+                        <div style="flex:1; background:#f9f9f9; padding:15px; border-left:3px solid #d4af37;">
+                            <div style="font-size:10px; color:#888; text-transform:uppercase; margin-bottom:10px;">Titularidade Legal</div>
+                            <div style="font-size:12px; margin-bottom:5px;"><b>Nome:</b> ${Services.escapeHTML(item.meta.titular)}</div>
+                            <div style="font-size:12px; margin-bottom:5px;"><b>Contacto:</b> ${Services.escapeHTML(item.meta.contacto)}</div>
+                            <div style="font-size:12px;"><b>Morada:</b> ${Services.escapeHTML(item.meta.morada)}</div>
+                        </div>
+                    </div>
+
+                    <div style="border:1px solid #ddd; padding:15px; margin-bottom:30px;">
+                        <div style="font-weight:700; font-size:11px; text-transform:uppercase; border-bottom:1px solid #ddd; padding-bottom:5px; margin-bottom:10px;">Conformidade Documental</div>
+                        <table style="width:100%; font-size:11px;">
+                            <tr>
+                                <td style="width:50%; padding:5px 0;">ID Frente: <b style="color:${item.docs.cc_frente?'#27ae60':'#e74c3c'}">${item.docs.cc_frente?'Validado':'Pendente'}</b></td>
+                                <td style="width:50%; padding:5px 0;">Caderneta: <b style="color:${item.docs.caderneta?'#27ae60':'#e74c3c'}">${item.docs.caderneta?'Validado':'Pendente'}</b></td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%; padding:5px 0;">Registo: <b style="color:${item.docs.registo?'#27ae60':'#e74c3c'}">${item.docs.registo?'Validado':'Pendente'}</b></td>
+                                <td style="width:50%; padding:5px 0;">Licença: <b style="color:${item.docs.licenca?'#27ae60':'#e74c3c'}">${item.docs.licenca?'Validado':'Pendente'}</b></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="page-break-before: auto;"></div>
                 `;
 
-                if(memoriaApp.length > 0) { 
-                    htmlString += `<div style="font-weight: 700; font-family: 'Playfair Display', serif; text-transform: uppercase; font-size: 16px; margin-bottom: 20px; color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 8px;">Mapeamento Visual & Arquitetónico</div>`; 
-                    memoriaApp.forEach((item, index) => {
-                        let textoFormatado = escapeHTML(item.texto).replace(/\n/g, '<br>');
-                        if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem dados estruturais registados.</span>";
-                        htmlString += `
-                        <div style="margin-bottom: 20px; page-break-inside: avoid; border: 1px solid #ddd; padding: 10px;">
-                            <img src="${item.imagem}" style="width: 100%; max-height: 300px; object-fit: cover;">
-                            <div style="font-size: 12px; margin-top:10px;">
-                                <strong>${escapeHTML(item.categoria)}</strong><br>
-                                ${textoFormatado}<br>
-                                <small style="color:#888;">${escapeHTML(item.dataHora)} | ${escapeHTML(item.coordenadas)}</small>
+                if (item.fotos.length > 0) {
+                    html += `<h3 style="color:#d4af37; font-family:'Playfair Display',serif; text-transform:uppercase; border-bottom:1px solid #d4af37; padding-bottom:5px;">Mapeamento Arquitetónico</h3>`;
+                    item.fotos.forEach((f, i) => {
+                        html += `
+                        <div style="margin-bottom:25px; page-break-inside:avoid; border:1px solid #eee; padding:10px;">
+                            <img src="${f.imgBase64}" style="width:100%; max-height:400px; object-fit:cover; display:block;">
+                            <div style="margin-top:10px;">
+                                <div style="font-size:12px; font-weight:700; color:#d4af37; text-transform:uppercase;">${Services.escapeHTML(f.divisao)}</div>
+                                <div style="font-size:11px; line-height:1.5; margin:8px 0; white-space:pre-wrap;">${Services.escapeHTML(f.nota) || '<i>Sem notas</i>'}</div>
+                                <div style="font-size:9px; color:#888; font-family:monospace;">${f.date} | ${f.gps}</div>
                             </div>
                         </div>`;
                     });
                 }
-                
-                htmlString += `</div>`;
-                DOM.pdfZone.innerHTML = htmlString;
-                window.scrollTo(0, 0);
+
+                if (item.signature) {
+                    html += `
+                    <div style="page-break-inside:avoid; text-align:center; margin-top:40px; border-top:1px solid #ddd; padding-top:20px;">
+                        <img src="${item.signature}" style="max-height:100px; max-width:250px; border-bottom:1px solid #000; padding-bottom:5px;">
+                        <div style="font-size:10px; color:#666; text-transform:uppercase; margin-top:5px;">Assinatura Digital (Titular do Ativo)</div>
+                    </div>`;
+                }
+
+                html += `</div>`;
+                zone.innerHTML = html;
+                zone.style.display = 'block';
 
                 setTimeout(() => {
-                    const opt = { 
-                        margin: 10, 
-                        filename: nomeFicheiroFinal, 
-                        image: { type: 'jpeg', quality: 0.95 }, 
-                        html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+                    const opt = {
+                        margin: 10, filename: `POV_PitchDeck_${item.meta.ref || item.id}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, letterRendering: true }, // Scale 2 for Retina text clarity
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                     };
                     
-                    html2pdf().set(opt).from(DOM.pdfZone).save().then(() => { 
-                        DOM.pdfZone.style.display = 'none'; 
-                        DOM.pdfZone.innerHTML = ''; 
-                        btn.innerText = "GERAR PITCH DECK DE INVESTIMENTO (PDF)"; 
-                        btn.disabled = false;
+                    html2pdf().set(opt).from(zone).save().then(() => {
+                        zone.style.display = 'none'; zone.innerHTML = '';
+                        btn.innerText = "GERAR PITCH DECK (PDF)"; btn.disabled = false;
                     }).catch(err => {
-                        console.error("PDF Enginer Error:", err);
-                        alert("Erro Engine PDF: Falha ao compilar. Verifique se as imagens são demasiado pesadas."); 
-                        btn.innerText = "GERAR PITCH DECK DE INVESTIMENTO (PDF)"; 
-                        btn.disabled = false;
+                        console.error(err); alert("Erro de Memória PDF. As imagens podem ser demasiado grandes.");
+                        btn.innerText = "GERAR PITCH DECK (PDF)"; btn.disabled = false;
                     });
-                }, 1000);
+                }, 800); // Aguarda renderização no DOM
             };
 
-            // ==========================================
-            // 6. BINDINGS E LISTENERS
-            // ==========================================
-            const bindEvents = () => {
-                // Navegação e Gestão de Pasta
-                document.getElementById('btnNovaPasta').addEventListener('click', () => {
-                    crmData.push({ id: Date.now(), titulo: "Rascunho de Target...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
-                    abrirPasta(crmData.length - 1);
-                });
-
-                document.getElementById('btnVoltarCRM').addEventListener('click', () => {
-                    guardarNoCRM(); DOM.uiEditor.style.display = "none"; DOM.uiDashboard.style.display = "block"; window.scrollTo(0,0);
-                });
-
-                document.getElementById('btnLimparTudo').addEventListener('click', () => {
-                    if(confirm("DIRETIVA C-SUITE: Esta ação destruirá todo o pipeline visual e legal permanentemente. Deseja libertar a memória e proceder?")) {
-                        localStorage.removeItem('pov_crm_v33_master'); crmData = []; renderizarDashboard();
-                    }
-                });
-
-                // Delegação de Evento: Lista de CRM
-                DOM.listaCRM.addEventListener('click', (e) => {
-                    const target = e.target.closest('.crm-item');
-                    if (target && target.dataset.index) abrirPasta(target.dataset.index);
-                });
-
-                // Delegação de Evento: Download de Fotos no Log
-                DOM.logUi.addEventListener('click', (e) => {
-                    if(e.target.classList.contains('btn-download-memoria')){
-                        descarregarFoto(e.target.dataset.index);
-                    }
-                });
-
-                // Inputs Metadados
-                mapMeta.forEach(b => { 
-                    const el = document.getElementById(b.id); 
-                    if(el) el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); });
-                });
-
-                // Motor Edge AI (Imagens)
-                const handleAIProcessing = (event) => {
-                    const file = event.target.files; if(!file) return;
-                    if (!file.type.startsWith('image/')) { alert("⚠️ Rejeitado."); return; }
-                    document.getElementById('micStatus').innerText = "A aplicar Matriz Cinematic Grading (Edge)...";
-                    document.getElementById('micStatus').style.color = "var(--gold-pov)";
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const canvas = document.getElementById('processing-canvas-edge');
-                            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                            let w = img.width, h = img.height;
-                            if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; } 
-                            canvas.width = w; canvas.height = h;
-                            
-                            ctx.drawImage(img, 0, 0, w, h);
-                            const imageData = ctx.getImageData(0, 0, w, h);
-                            const data = imageData.data;
-                            
-                            const contrast = 1.18, brightness = 10;
-                            for (let i = 0; i < data.length; i += 4) {
-                                let r = data[i], g = data[i + 1], b = data[i + 2];
-                                r = ((r / 255 - 0.5) * contrast + 0.5) * 255 + brightness + 22;
-                                g = ((g / 255 - 0.5) * contrast + 0.5) * 255 + brightness + 12;
-                                b = ((b / 255 - 0.5) * contrast + 0.5) * 255 + brightness - 5;
-                                data[i] = Math.min(255, Math.max(0, r));
-                                data[i + 1] = Math.min(255, Math.max(0, g));
-                                data[i + 2] = Math.min(255, Math.max(0, b));
-                            }
-                            ctx.putImageData(imageData, 0, 0);
-                            concluirCapturaVistoria(canvas.toDataURL('image/jpeg', 0.85));
-                            ctx.clearRect(0,0, w, h);
-                            event.target.value = ""; 
-                        }
-                        img.src = e.target.result;
-                    }
-                    reader.readAsDataURL(file);
-                };
-
-                document.getElementById('camera-input-edge').addEventListener('change', handleAIProcessing);
-                document.getElementById('gallery-input-edge').addEventListener('change', handleAIProcessing);
-                document.getElementById('btnCapturaEdge').addEventListener('click', () => document.getElementById('camera-input-edge').click());
-                document.getElementById('btnGaleriaEdge').addEventListener('click', () => document.getElementById('gallery-input-edge').click());
-
-                // Botão de Guardar (Com GPS)
-                document.getElementById('guardarBtn').addEventListener('click', function() {
-                    this.style.display = "none"; 
-                    const concluirGuardar = (coordsText) => {
-                        memoriaApp.push({ 
-                            categoria: document.getElementById('selectDivisao').value, 
-                            imagem: tempImagemBase64, 
-                            texto: document.getElementById('visorNota').value.trim(), 
-                            coordenadas: coordsText, 
-                            dataHora: new Date().toLocaleString('pt-PT') 
-                        });
-                        guardarNoCRM(); renderizarInterface(); resetarCameraVisual();
-                        document.getElementById('micStatus').innerText = "Registo acoplado à base de dados.";
-                    };
-                    document.getElementById('micStatus').innerText = "A calcular telemetria GPS...";
-                    if (navigator.geolocation) { 
-                        navigator.geolocation.getCurrentPosition( 
-                            (pos) => concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`), 
-                            (err) => concluirGuardar("Sinal GPS Omitido"), 
-                            { enableHighAccuracy: true, timeout: 5000 } 
-                        );
-                    } else { concluirGuardar("GPS Incompatível."); }
-                });
-
-                // Assinatura Canvas Events
-                const getPos = (e) => { 
-                    const r = DOM.canvasAssinatura.getBoundingClientRect(); 
-                    const cx = e.touches ? e.touches.clientX : e.clientX; 
-                    const cy = e.touches ? e.touches.clientY : e.clientY; 
-                    return { x: cx - r.left, y: cy - r.top }; 
-                };
-                
-                const startDrawing = (e) => { 
-                    if(e.type === 'touchstart') e.preventDefault(); 
-                    assinando=true; const p=getPos(e); DOM.ctxAssinatura.beginPath(); DOM.ctxAssinatura.moveTo(p.x, p.y); 
-                };
-                const draw = (e) => { 
-                    if(e.type === 'touchmove') e.preventDefault(); 
-                    if(assinando){ const p=getPos(e); DOM.ctxAssinatura.lineTo(p.x, p.y); DOM.ctxAssinatura.stroke(); temAssinatura=true; }
-                };
-                const stopDrawing = () => { 
-                    assinando=false; 
-                    if(temAssinatura) { assinaturaSalvaBase64 = DOM.canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } 
-                };
-
-                DOM.canvasAssinatura.addEventListener('mousedown', startDrawing);
-                DOM.canvasAssinatura.addEventListener('mousemove', draw);
-                DOM.canvasAssinatura.addEventListener('mouseup', stopDrawing);
-                DOM.canvasAssinatura.addEventListener('mouseout', stopDrawing);
-                DOM.canvasAssinatura.addEventListener('touchstart', startDrawing, {passive:false});
-                DOM.canvasAssinatura.addEventListener('touchmove', draw, {passive:false});
-                DOM.canvasAssinatura.addEventListener('touchend', stopDrawing);
-
-                document.getElementById('btnLimparCanvas').addEventListener('click', () => { 
-                    DOM.ctxAssinatura.clearRect(0, 0, DOM.canvasAssinatura.width, DOM.canvasAssinatura.height); 
-                    temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); 
-                });
-
-                // Delegação de Smart Tags
-                document.getElementById('painelTags').addEventListener('click', (e) => {
-                    if(e.target.classList.contains('smart-tag')) {
-                        const t = e.target.dataset.tag;
-                        const vNota = document.getElementById('visorNota');
-                        let txt = vNota.value.trim(); 
-                        vNota.value = txt + (txt.length > 0 ? '\n' : '') + '✦ ' + t;
-                    }
-                });
-
-                // Web Speech API Isolado
-                const ativarDitado = (inputId, btnId) => {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    if (!SpeechRecognition) { alert("Motor de ditado não suportado neste browser."); return; }
-                    try {
-                        const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
-                        const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
-                        rec.onstart = () => btn.classList.add('recording');
-                        rec.onresult = (e) => { 
-                            let tEx = target.value.trim(); let novo = e.results.transcript.trim(); 
-                            target.value = tEx.length > 0 ? tEx + " " + novo : novo;
-                            if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
-                            if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
-                        };
-                        rec.onend = () => btn.classList.remove('recording'); 
-                        rec.start();
-                    } catch(err) { console.warn("Erro ao instanciar SpeechAPI", err); }
-                };
-                
-                document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
-                document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
-
-                // PDF Generate Bind
-                document.getElementById('gerarPdfBtn').addEventListener('click', function() { gerarPDF(this); });
-
-                // Initialize Upload Listeners
-                setupDualDocUpload('fileLogo_gal', 'fileLogo_cam', 'lblText_logo', 'wrap_logo', 'logo', 'Logótipo Oficial');
-                setupDualDocUpload('fileCCF_gal', 'fileCCF_cam', 'lblText_ccF', 'wrap_ccF', 'ccF', 'ID (Frente)');
-                setupDualDocUpload('fileCCV_gal', 'fileCCV_cam', 'lblText_ccV', 'wrap_ccV', 'ccV', 'ID (Verso)');
-                setupDualDocUpload('fileCaderneta_gal', 'fileCaderneta_cam', 'lblText_caderneta', 'wrap_caderneta', 'caderneta', 'Caderneta Predial');
-                setupDualDocUpload('fileRegisto_gal', 'fileRegisto_cam', 'lblText_registo', 'wrap_registo', 'registo', 'Registo Predial');
-                setupDualDocUpload('fileLicenca_gal', 'fileLicenca_cam', 'lblText_licenca', 'wrap_licenca', 'licenca', 'Licença de Utilização');
-                setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
-                setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
-            };
-
-            // Init Pipeline
-            return {
-                init: () => {
-                    loadData();
-                    renderizarDashboard();
-                    bindEvents();
-                }
-            };
+            return { generate };
         })();
 
         // ==========================================
-        // 🚨 HEALTH CHECK DE ARRANQUE (FAIL-FAST)
+        // 6. BOOTLOADER & HEALTH CHECK
         // ==========================================
-        const SystemIntegrityCheck = {
-            portfolio: !!localStorage,
-            identity: typeof FileReader !== 'undefined',
-            voiceDictation: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
-            edgeAI: typeof document.createElement('canvas').getContext === 'function',
-            telemetry: 'geolocation' in navigator,
-            cSuiteEngine: typeof html2pdf !== 'undefined'
+        const Bootloader = async () => {
+            // Nexus Fail-Fast Health Check
+            if (!window.indexedDB) console.error("[ARCHITECT]: IndexedDB não suportado. Falha crítica esperada.");
+            if (!window.FileReader) console.warn("[ARCHITECT]: FileReader não suportado. Image Upload falhará.");
+            
+            try {
+                await DB.init();
+                await Store.load();
+                UI.bindEvents();
+                UI.navigate('dash');
+            } catch (error) {
+                document.body.innerHTML = `<div style="padding:40px; text-align:center; color:#cf6679;"><h3>Erro Fatal no Arranque</h3><p>${error}</p></div>`;
+            }
         };
 
-        Object.entries(SystemIntegrityCheck).forEach(([module, isSupported]) => {
-            if (!isSupported) console.warn(`[NEXUS ARCHITECT ALERTA]: Falha de suporte no módulo ${module}.`);
-        });
-
-        // Boot da Aplicação Central
-        document.addEventListener("DOMContentLoaded", POVApp.init);
+        window.addEventListener('DOMContentLoaded', Bootloader);
     </script>
 </body>
 </html>
