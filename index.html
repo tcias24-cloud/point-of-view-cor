@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Neural CRM V33.3 (Titanium)</title>
+    <title>POV App - Neural CRM V33.4</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -104,13 +104,13 @@
         <div class="card">
             <h2><span>🗂️</span> Gestor de Portfólio</h2>
             <div id="lista-crm" style="margin-bottom: 25px;"></div>
-            <button id="btnNovaPasta" class="btn-acao btn-gold">➕ INICIAR NOVO MANDATO</button>
-            <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #444; border: 1px solid #222; margin-top: 10px; font-size: 9px; box-shadow: none;">FORMATAR BASE DE DADOS</button>
+            <button class="btn-acao btn-gold" onclick="iniciarNovoMandato()">➕ INICIAR NOVO MANDATO</button>
+            <button class="btn-acao" style="background: transparent; color: #444; border: 1px solid #222; margin-top: 10px; font-size: 9px; box-shadow: none;" onclick="limparSistema()">FORMATAR BASE DE DADOS</button>
         </div>
     </div>
 
     <div id="app-ui-container">
-        <button id="btnVoltarCRM" class="btn-voltar">⬅ Voltar ao Portfólio</button>
+        <button class="btn-voltar" onclick="fecharEVoltar()">⬅ Voltar ao Portfólio</button>
         
         <div class="card">
             <h2><span>🏢</span> 1. Identidade Corporativa</h2>
@@ -239,10 +239,10 @@
                 <div class="ai-subtitle">Injeção de Luz Natural Local (Edge AI)</div>
                 
                 <input type="file" accept="image/*" capture="environment" id="camera-input-edge" class="hidden-input">
-                <button id="btnCapturaEdge" class="btn-acao btn-gold" style="margin-bottom: 10px;">📸 CAPTURAR & VALORIZAR ATIVO</button>
+                <button class="btn-acao btn-gold" style="margin-bottom: 10px;" onclick="document.getElementById('camera-input-edge').click()">📸 CAPTURAR & VALORIZAR ATIVO</button>
                 
                 <input type="file" accept="image/*" id="gallery-input-edge" class="hidden-input">
-                <button id="btnGaleriaEdge" class="btn-acao btn-outline" style="margin-bottom: 0; font-size: 9px; padding: 12px;">📂 PROCESSAR DA GALERIA</button>
+                <button class="btn-acao btn-outline" style="margin-bottom: 0; font-size: 9px; padding: 12px;" onclick="document.getElementById('gallery-input-edge').click()">📂 PROCESSAR DA GALERIA</button>
                 
                 <canvas id="processing-canvas-edge" style="display: none;"></canvas>
             </div>
@@ -271,7 +271,7 @@
         <div class="card">
             <h2><span>✍️</span> 6. Validação Legal</h2>
             <canvas id="canvasAssinatura"></canvas>
-            <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro de Assinatura</button>
+            <button class="btn-limpar-canvas" onclick="limparQuadro()">Limpar Quadro de Assinatura</button>
         </div>
 
         <div class="card">
@@ -288,19 +288,20 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // 1. GESTÃO DE ESTADO E BLINDAGEM DE MEMÓRIA (TDZ / QUOTA)
+        // ==========================================
+        // GESTÃO DE ESTADO & DIAGNÓSTICO
+        // ==========================================
         let crmData = [];
         try {
             let cache = localStorage.getItem('pov_crm_v33_master');
             if (cache) { crmData = JSON.parse(cache); if (!Array.isArray(crmData)) crmData = []; }
-        } catch(e) { crmData = []; }
+        } catch(e) { console.error("Erro Cache:", e); crmData = []; }
         
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = "";
         let assinando = false; let temAssinatura = false; 
 
-        // 2. EXTRAÇÃO DOM
         const uiDashboard = document.getElementById('crm-dashboard');
         const uiEditor = document.getElementById('app-ui-container');
         const listaCRM = document.getElementById('lista-crm');
@@ -308,7 +309,6 @@
         const ctxAssinatura = canvasAssinatura.getContext('2d');
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        // 3. ESTRUTURAS DE MAPEAMENTO DE DADOS
         const docKeys = [
             { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
             { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'ID (Frente)' },
@@ -326,7 +326,43 @@
             { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
         ];
 
-        // 4. FUNÇÕES NÚCLEO DO SISTEMA E TRATAMENTO DE ERROS DE ARMAZENAMENTO
+        // ==========================================
+        // COMANDOS DE ROTEAMENTO (NAVEGAÇÃO HARDCODED)
+        // ==========================================
+        
+        window.iniciarNovoMandato = function() {
+            try {
+                crmData.push({ id: new Date().getTime(), titulo: "Rascunho de Target...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
+                abrirPasta(crmData.length - 1);
+            } catch (erro) {
+                alert("ERRO DE SISTEMA NO CLIQUE: " + erro.message);
+            }
+        };
+
+        window.fecharEVoltar = function() {
+            try {
+                guardarNoCRM(); 
+                uiEditor.style.display = "none"; 
+                uiDashboard.style.display = "block"; 
+                window.scrollTo(0,0);
+            } catch (erro) {
+                alert("ERRO AO VOLTAR: " + erro.message);
+            }
+        };
+
+        window.limparSistema = function() {
+            if(confirm("DIRETIVA C-SUITE: Esta ação destruirá todo o pipeline visual e legal permanentemente. Deseja libertar a memória e proceder?")) {
+                localStorage.removeItem('pov_crm_v33_master'); crmData = []; renderizarDashboard();
+            }
+        };
+
+        window.abrirPastaAExistente = function(index) {
+            try { abrirPasta(index); } catch(e) { alert("ERRO AO ABRIR PASTA: " + e.message); }
+        };
+
+        // ==========================================
+        // LÓGICA DE DADOS
+        // ==========================================
         function guardarNoCRM() {
             if (activeIndex === -1) return;
             crmData[activeIndex] = {
@@ -336,30 +372,28 @@
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
             
-            try {
-                localStorage.setItem('pov_crm_v33_master', JSON.stringify(crmData));
-            } catch (error) {
-                console.error(error);
-                alert("⚠️ ALERTA DE SISTEMA (MEMÓRIA CHEIA)\nO dispositivo atingiu o limite seguro de armazenamento para fotos. Gere imediatamente o Pitch Deck (PDF) deste cliente para não perder dados, descarregue-o, e use a função 'FORMATAR BASE DE DADOS' no ecrã inicial para limpar a memória antes da próxima visita.");
-            }
+            try { localStorage.setItem('pov_crm_v33_master', JSON.stringify(crmData)); } 
+            catch (error) { alert("⚠️ ALERTA: Memória do telemóvel cheia. Exporte o PDF e formate a base de dados."); }
             renderizarDashboard();
         }
 
         function renderizarDashboard() {
-            listaCRM.innerHTML = "";
-            if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:11px; text-transform: uppercase;'>Sem registos ativos no pipeline.</p>"; return; }
-            
-            crmData.forEach((pasta, index) => {
-                const numFotos = pasta.fotos ? pasta.fotos.length : 0;
-                listaCRM.innerHTML += `
-                    <div class="crm-item" onclick="abrirPasta(${index})">
-                        <div>
-                            <div class="crm-title">${pasta.titulo}</div>
-                            <div class="crm-ref">${pasta.data} | 📷 ${numFotos} Ativos Visuais</div>
-                        </div>
-                        <div style="color:var(--gold-pov); font-size:16px;">➔</div>
-                    </div>`;
-            });
+            try {
+                listaCRM.innerHTML = "";
+                if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:11px; text-transform: uppercase;'>Sem registos ativos no pipeline.</p>"; return; }
+                
+                crmData.forEach((pasta, index) => {
+                    const numFotos = pasta.fotos ? pasta.fotos.length : 0;
+                    listaCRM.innerHTML += `
+                        <div class="crm-item" onclick="abrirPastaAExistente(${index})">
+                            <div>
+                                <div class="crm-title">${pasta.titulo}</div>
+                                <div class="crm-ref">${pasta.data} | 📷 ${numFotos} Ativos Visuais</div>
+                            </div>
+                            <div style="color:var(--gold-pov); font-size:16px;">➔</div>
+                        </div>`;
+                });
+            } catch(e) { alert("ERRO DASHBOARD: " + e.message); }
         }
 
         function resetarCameraVisual() {
@@ -381,6 +415,13 @@
             ctxAssinatura.lineWidth = 2; 
             ctxAssinatura.lineCap = 'round'; 
             ctxAssinatura.strokeStyle = '#000'; 
+        }
+
+        window.limparQuadro = function() {
+            ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); 
+            temAssinatura = false; 
+            assinaturaSalvaBase64 = ""; 
+            guardarNoCRM();
         }
 
         function abrirPasta(index) {
@@ -409,7 +450,6 @@
             uiEditor.style.display = "block"; 
             window.scrollTo(0,0);
 
-            // CÁLCULO CEGO RESOLVIDO: O Canvas é inicializado e preenchido APÓS a UI estar 100% visível
             setTimeout(() => { 
                 inicializarCanvas(); 
                 if(assinaturaSalvaBase64 !== "") { 
@@ -418,27 +458,13 @@
                     img.src = assinaturaSalvaBase64; 
                     temAssinatura = true; 
                 } else { temAssinatura = false; }
-            }, 100);
+            }, 150);
         }
 
-        // 5. ATRIBUIÇÃO DE EVENTOS DE INTERFACE
-        document.getElementById('btnNovaPasta').addEventListener('click', () => {
-            crmData.push({ id: new Date().getTime(), titulo: "Rascunho de Target...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
-            abrirPasta(crmData.length - 1);
-        });
-
-        document.getElementById('btnVoltarCRM').addEventListener('click', () => {
-            guardarNoCRM(); uiEditor.style.display = "none"; uiDashboard.style.display = "block"; window.scrollTo(0,0);
-        });
-
-        document.getElementById('btnLimparTudo').addEventListener('click', () => {
-            if(confirm("DIRETIVA C-SUITE: Esta ação destruirá todo o pipeline visual e legal permanentemente. Deseja libertar a memória e proceder?")) {
-                localStorage.removeItem('pov_crm_v33_master'); crmData = []; renderizarDashboard();
-            }
-        });
-
+        // BINDING DOS INPUTS DE TEXTO
         mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
 
+        // UPLOAD ENGINE
         function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
             const handleFile = function(e) {
                 const file = e.target.files; if(!file) return;
@@ -473,14 +499,9 @@
         setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
         setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
 
-
         // ==========================================
         // MOTOR POV CINEMATIC GRADING (EDGE AI)
         // ==========================================
-        
-        document.getElementById('btnCapturaEdge').addEventListener('click', () => document.getElementById('camera-input-edge').click());
-        document.getElementById('btnGaleriaEdge').addEventListener('click', () => document.getElementById('gallery-input-edge').click());
-
         const handleAIProcessing = function(event) {
             const file = event.target.files; if(!file) return;
             if (!file.type.startsWith('image/')) { alert("⚠️ Rejeitado."); return; }
@@ -494,42 +515,23 @@
                 img.onload = function() {
                     const canvas = document.getElementById('processing-canvas-edge');
                     const ctx = canvas.getContext('2d');
-                    
                     let w = img.width, h = img.height;
-                    // Resolução ArchViz padrão otimizada para PDF e RAM mobile
                     if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; } 
                     canvas.width = w; canvas.height = h;
-                    
                     ctx.drawImage(img, 0, 0, w, h);
                     
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     const data = imageData.data;
-
-                    // O ALGORITMO POV (Custo 0€)
-                    const contrast = 1.18; // Contraste corporativo denso
-                    const brightness = 10; // Compensação base
-                    
+                    const contrast = 1.18; const brightness = 10; 
                     for (let i = 0; i < data.length; i += 4) {
                         let r = data[i], g = data[i + 1], b = data[i + 2];
-
-                        r = ((r / 255 - 0.5) * contrast + 0.5) * 255;
-                        g = ((g / 255 - 0.5) * contrast + 0.5) * 255;
-                        b = ((b / 255 - 0.5) * contrast + 0.5) * 255;
-
-                        r += brightness + 22; // Injeta vermelho (Golden Hour)
-                        g += brightness + 12; // Injeta verde
-                        b += brightness - 5;  // Elimina tons frios
-
-                        data[i] = r > 255 ? 255 : (r < 0 ? 0 : r);
-                        data[i + 1] = g > 255 ? 255 : (g < 0 ? 0 : g);
-                        data[i + 2] = b > 255 ? 255 : (b < 0 ? 0 : b);
+                        r = ((r / 255 - 0.5) * contrast + 0.5) * 255; g = ((g / 255 - 0.5) * contrast + 0.5) * 255; b = ((b / 255 - 0.5) * contrast + 0.5) * 255;
+                        r += brightness + 22; g += brightness + 12; b += brightness - 5; 
+                        data[i] = r > 255 ? 255 : (r < 0 ? 0 : r); data[i + 1] = g > 255 ? 255 : (g < 0 ? 0 : g); data[i + 2] = b > 255 ? 255 : (b < 0 ? 0 : b);
                     }
-
                     ctx.putImageData(imageData, 0, 0);
                     concluirCapturaVistoria(canvas.toDataURL('image/jpeg', 0.85));
-                    
-                    ctx.clearRect(0,0, canvas.width, canvas.height);
-                    event.target.value = ""; 
+                    ctx.clearRect(0,0, canvas.width, canvas.height); event.target.value = ""; 
                 }
                 img.src = e.target.result;
             }
@@ -543,12 +545,11 @@
             tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
             document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
             document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
-            document.getElementById('micStatus').innerText = "Processamento Edge Concluído. Extraia a metadata.";
-            document.getElementById('micStatus').style.color = "var(--text-muted)";
+            document.getElementById('micStatus').innerText = "Processamento Edge Concluído. Extraia a metadata."; document.getElementById('micStatus').style.color = "var(--text-muted)";
             document.getElementById('guardarBtn').style.display = "block";
         }
 
-        function adicionarTag(textoTag) { let textoAtual = document.getElementById('visorNota').value.trim(); let novaLinha = textoAtual.length > 0 ? '\n' : ''; document.getElementById('visorNota').value = textoAtual + novaLinha + '✦ ' + textoTag; }
+        window.adicionarTag = function(textoTag) { let textoAtual = document.getElementById('visorNota').value.trim(); let novaLinha = textoAtual.length > 0 ? '\n' : ''; document.getElementById('visorNota').value = textoAtual + novaLinha + '✦ ' + textoTag; }
 
         window.descarregarFoto = function(indexFoto) {
             if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
@@ -578,9 +579,7 @@
             this.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
                 memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                guardarNoCRM(); renderizarInterface();
-                resetarCameraVisual();
-                document.getElementById('micStatus').innerText = "Registo acoplado à base de dados.";
+                guardarNoCRM(); renderizarInterface(); resetarCameraVisual(); document.getElementById('micStatus').innerText = "Registo acoplado à base de dados.";
             };
             document.getElementById('micStatus').innerText = "A calcular telemetria GPS...";
             if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( (pos) => { concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`); }, (err) => { concluirGuardar("Sinal GPS Omitido"); }, { enableHighAccuracy: true, timeout: 5000 } );
@@ -597,7 +596,6 @@
         canvasAssinatura.addEventListener('touchstart', (e)=>{ e.preventDefault(); assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
         canvasAssinatura.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
         canvasAssinatura.addEventListener('touchend', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
-        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); });
 
         function ativarDitado(inputId, btnId) {
             if (!SpeechRecognition) return;
@@ -615,7 +613,7 @@
         document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
         // ==========================================
-        // GERAÇÃO DO PITCH DECK DE INVESTIMENTO (PDF)
+        // GERAÇÃO PDF
         // ==========================================
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             const btn = this; btn.innerText = "⏳ A COMPILAR PITCH DECK... (Aguarde)"; btn.disabled = true;
