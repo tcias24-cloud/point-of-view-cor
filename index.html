@@ -543,7 +543,7 @@
                 DOM.pdfZone.style.display = 'block';
 
                 let htmlString = `<div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">`;
-                // (Omiti o HTML em string gigante nativo para manter a legibilidade arquitetónica, mas reconstrui de forma limpa)
+                
                 htmlString += `
                     <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
                         <tr>
@@ -582,7 +582,6 @@
                 window.scrollTo(0, 0);
 
                 setTimeout(() => {
-                    // CORREÇÃO CRÍTICA DO ERRO DE SINTAXE (margin:, -> margin: 10,)
                     const opt = { 
                         margin: 10, 
                         filename: nomeFicheiroFinal, 
@@ -803,6 +802,22 @@
                 }
             };
         })();
+
+        // ==========================================
+        // 🚨 HEALTH CHECK DE ARRANQUE (FAIL-FAST)
+        // ==========================================
+        const SystemIntegrityCheck = {
+            portfolio: !!localStorage,
+            identity: typeof FileReader !== 'undefined',
+            voiceDictation: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+            edgeAI: typeof document.createElement('canvas').getContext === 'function',
+            telemetry: 'geolocation' in navigator,
+            cSuiteEngine: typeof html2pdf !== 'undefined'
+        };
+
+        Object.entries(SystemIntegrityCheck).forEach(([module, isSupported]) => {
+            if (!isSupported) console.warn(`[NEXUS ARCHITECT ALERTA]: Falha de suporte no módulo ${module}.`);
+        });
 
         // Boot da Aplicação Central
         document.addEventListener("DOMContentLoaded", POVApp.init);
