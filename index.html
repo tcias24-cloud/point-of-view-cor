@@ -3,299 +3,809 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Neural CRM V37 (Bypass Edition)</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com data: blob:;">
+    <title>POV App - Neural CRM V33.3 (Titanium)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-deep:#000; --bg-card:#0c0c0c; --border-subtle:#222; --gold-pov:#D4AF37; --gold-dim:rgba(212,175,55,0.15); --text-main:#f0f0f0; --text-muted:#888; }
-        body { font-family:'Montserrat',sans-serif; background-color:var(--bg-deep); color:var(--text-main); padding:15px; margin:0; -webkit-font-smoothing:antialiased; }
-        .header-brand { text-align:center; margin-bottom:25px; margin-top:10px; }
-        .header-brand h1 { font-family:'Playfair Display',serif; color:var(--gold-pov); font-size:24px; margin:0; letter-spacing:3px; font-weight:600; text-transform:uppercase; }
-        .header-brand p { font-size:10px; color:var(--text-muted); letter-spacing:5px; text-transform:uppercase; margin-top:5px; }
-        .card { background:var(--bg-card); padding:25px 20px; border-radius:2px; border:1px solid var(--border-subtle); margin-bottom:20px; position:relative; overflow:hidden; }
-        .card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--gold-pov); opacity:0.8; }
-        h2 { font-family:'Playfair Display',serif; margin-top:0; font-size:15px; text-transform:uppercase; border-bottom:1px solid var(--border-subtle); padding-bottom:12px; color:var(--text-main); letter-spacing:1px; font-weight:400; }
-        h2 span { color:var(--gold-pov); margin-right:8px; font-size:14px; }
-        .btn-acao { background-color:#fff; color:#000; border:none; padding:16px; font-size:12px; font-weight:600; border-radius:2px; width:100%; margin-bottom:15px; cursor:pointer; text-transform:uppercase; letter-spacing:1.5px; transition:0.3s; font-family:'Montserrat',sans-serif; }
-        .btn-acao:active { transform:scale(0.98); }
-        .btn-gold { background-color:var(--gold-pov); color:#000; border:1px solid #ebc64f; }
-        .btn-outline { background:transparent; color:var(--gold-pov); border:1px solid var(--gold-pov); }
-        .input-group { display:flex; gap:10px; margin-bottom:15px; }
-        .input-meta, .select-divisao { flex:1; padding:14px; border-radius:2px; border:1px solid var(--border-subtle); background:#111; color:#fff; font-size:13px; font-family:inherit; }
-        .input-meta:focus, .select-divisao:focus { outline:none; border-color:var(--gold-pov); background:#000; }
-        .btn-mic-pequeno { background-color:#111; color:var(--gold-pov); border:1px solid var(--border-subtle); border-radius:2px; width:48px; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:16px; }
-        .hidden-input { position:absolute; width:0.1px; height:0.1px; opacity:0; overflow:hidden; z-index:-1; }
-        .upload-wrapper { background:#0a0a0a; border:1px dashed var(--border-subtle); padding:15px; border-radius:2px; margin-bottom:12px; text-align:center; }
-        .upload-wrapper.loaded { border-color:var(--gold-pov); border-style:solid; background:var(--gold-dim); }
-        .lbl-doc-title { font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:500; margin-bottom:12px; display:block; }
-        .lbl-doc-title.loaded { color:var(--gold-pov); }
-        .dual-btn-container { display:flex; gap:8px; width:100%; justify-content:center; }
-        .btn-micro { background:#111; color:var(--text-main); border:1px solid var(--border-subtle); border-radius:2px; padding:12px 5px; font-size:9px; cursor:pointer; text-transform:uppercase; flex:1; text-align:center; letter-spacing:1px; }
-        .ai-engine-box { border:1px solid var(--gold-pov); background:#080808; padding:20px; border-radius:2px; text-align:center; margin-bottom:15px; }
-        .ai-title { font-family:'Playfair Display',serif; color:var(--gold-pov); font-size:16px; margin-bottom:5px; }
-        .ai-subtitle { font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px; }
-        #previewImagem { width:100%; max-height:300px; object-fit:cover; border-radius:2px; margin-bottom:15px; display:none; border:1px solid var(--border-subtle); }
-        .painel-ditado { display:none; align-items:flex-start; gap:10px; margin-bottom:10px; background:#0a0a0a; padding:12px; border-radius:2px; border:1px solid var(--border-subtle); }
-        .btn-icone-mic { background-color:#222; color:var(--gold-pov); border:1px solid var(--border-subtle); border-radius:50%; width:50px; height:50px; font-size:18px; display:flex; justify-content:center; align-items:center; flex-shrink:0; }
-        .visor-texto { width:100%; min-height:80px; padding:12px; border-radius:2px; background:#111; color:#fff; font-size:13px; resize:none; border:1px solid transparent; }
-        .painel-tags { display:none; flex-wrap:wrap; gap:8px; margin-bottom:15px; }
-        .smart-tag { background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:8px 14px; border-radius:30px; font-size:9px; cursor:pointer; text-transform:uppercase; }
-        .status { font-size:9px; color:var(--text-muted); margin-bottom:15px; text-transform:uppercase; text-align:center; letter-spacing:2px; }
-        #canvasAssinatura { width:100%; height:150px; background:#fff; border-radius:2px; touch-action:none; margin-bottom:10px; }
-        .btn-limpar-canvas { background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:10px; font-size:10px; text-transform:uppercase; border-radius:2px; width:100%; margin-bottom:15px; }
-        .foto-item-ui { background:#0a0a0a; padding:15px; border-radius:2px; margin-bottom:10px; border-left:2px solid var(--gold-pov); display:flex; gap:15px; border-bottom:1px solid var(--border-subtle); }
-        .ui-img-box { width:70px; height:70px; border-radius:2px; background-size:cover; background-position:center; flex-shrink:0; }
-        .foto-item-ui p { font-size:11px; margin:0; flex:1; color:#ccc; line-height:1.5; white-space:pre-wrap; }
-        .badge-categoria { font-size:8px; background:#111; color:var(--gold-pov); padding:4px 8px; border-radius:2px; text-transform:uppercase; margin-bottom:6px; display:inline-block; }
-        .btn-dl-img { background:transparent; color:var(--text-muted); border:1px solid var(--border-subtle); border-radius:2px; font-size:8px; padding:6px 10px; cursor:pointer; margin-top:8px; text-transform:uppercase; }
-        #pdf-render-zone { display:none; background-color:#fff; color:#000; width:100%; padding:40px; box-sizing:border-box; }
-        #crm-dashboard { display:block; } #app-ui-container { display:none; }
-        .crm-item { background:#0a0a0a; border:1px solid var(--border-subtle); padding:18px; border-radius:2px; margin-bottom:12px; border-left:3px solid var(--gold-pov); display:flex; justify-content:space-between; align-items:center; cursor:pointer;}
-        .crm-title { font-weight:600; font-size:13px; color:#fff; margin-bottom:6px; font-family:'Playfair Display',serif; }
-        .crm-ref { font-size:10px; color:var(--text-muted); text-transform:uppercase; }
-        .btn-voltar { background:transparent; color:var(--text-muted); border:none; padding:10px 0; width:100%; margin-bottom:20px; text-transform:uppercase; font-size:10px; border-bottom:1px solid var(--border-subtle); text-align:left; cursor:pointer;}
+        :root {
+            --bg-deep: #000000; --bg-card: #0c0c0c; --border-subtle: #222222;
+            --gold-pov: #D4AF37; --gold-dim: rgba(212, 175, 55, 0.15);
+            --text-main: #f0f0f0; --text-muted: #888888;
+        }
+
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-deep); color: var(--text-main); padding: 15px; margin: 0; -webkit-font-smoothing: antialiased; }
+        
+        .header-brand { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        .header-brand h1 { font-family: 'Playfair Display', serif; color: var(--gold-pov); font-size: 24px; margin: 0; letter-spacing: 3px; font-weight: 600; text-transform: uppercase; }
+        .header-brand p { font-size: 10px; color: var(--text-muted); letter-spacing: 5px; text-transform: uppercase; margin-top: 5px; }
+
+        .card { background: var(--bg-card); padding: 25px 20px; border-radius: 2px; border: 1px solid var(--border-subtle); margin-bottom: 20px; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold-pov); opacity: 0.8; }
+        
+        h2 { font-family: 'Playfair Display', serif; margin-top: 0; font-size: 15px; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; color: var(--text-main); letter-spacing: 1px; font-weight: 400; }
+        h2 span { color: var(--gold-pov); margin-right: 8px; font-size: 14px; }
+        
+        .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 16px; font-size: 12px; font-weight: 600; border-radius: 2px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s; font-family: 'Montserrat', sans-serif; }
+        .btn-acao:active { transform: scale(0.98); }
+        .btn-acao:disabled { background-color: #333 !important; color: #666 !important; cursor: not-allowed; border: none !important; }
+        
+        .btn-gold { background-color: var(--gold-pov); color: #000; box-shadow: 0 4px 15px rgba(212,175,55,0.15); border: 1px solid #ebc64f; }
+        .btn-outline { background: transparent; color: var(--gold-pov); border: 1px solid var(--gold-pov); }
+        .btn-guardar { display: none; margin-top: 20px; }
+        
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .input-meta, .select-divisao { flex: 1; padding: 14px; border-radius: 2px; border: 1px solid var(--border-subtle); background: #111; color: #fff; font-size: 13px; font-family: inherit; transition: 0.3s; }
+        .input-meta:focus, .select-divisao:focus { outline: none; border-color: var(--gold-pov); background: #000; }
+        
+        .btn-mic-pequeno { background-color: #111; color: var(--gold-pov); border: 1px solid var(--border-subtle); border-radius: 2px; width: 48px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-mic-pequeno.recording { background-color: #8b0000; color: #fff; border-color: #ff0000; }
+        
+        .hidden-input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1; }
+        
+        .upload-wrapper { background: #0a0a0a; border: 1px dashed var(--border-subtle); padding: 15px; border-radius: 2px; margin-bottom: 12px; text-align: center; transition: 0.3s; }
+        .upload-wrapper.loaded { border-color: var(--gold-pov); border-style: solid; background: var(--gold-dim); }
+        .lbl-doc-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 500; margin-bottom: 12px; display: block; letter-spacing: 1px; }
+        .lbl-doc-title.loaded { color: var(--gold-pov); }
+        
+        .dual-btn-container { display: flex; gap: 8px; width: 100%; justify-content: center; }
+        .btn-micro { background: #111; color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: 2px; padding: 12px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 500; display: block; margin: 0; text-align: center; letter-spacing: 1px; transition: 0.2s;}
+        .btn-micro:active { border-color: var(--gold-pov); color: var(--gold-pov); }
+
+        .ai-engine-box { border: 1px solid var(--gold-pov); background: #080808; padding: 20px; border-radius: 2px; text-align: center; margin-bottom: 15px; box-shadow: inset 0 0 20px rgba(212,175,55,0.05); }
+        .ai-title { font-family: 'Playfair Display', serif; color: var(--gold-pov); font-size: 16px; margin-bottom: 5px; }
+        .ai-subtitle { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        
+        #previewImagem { width: 100%; max-height: 300px; object-fit: cover; border-radius: 2px; margin-bottom: 15px; display: none; border: 1px solid var(--border-subtle); }
+        
+        .painel-ditado { display: none; align-items: flex-start; gap: 10px; margin-bottom: 10px; background: #0a0a0a; padding: 12px; border-radius: 2px; border: 1px solid var(--border-subtle); }
+        .btn-icone-mic { background-color: #222; color: var(--gold-pov); border: 1px solid var(--border-subtle); border-radius: 50%; width: 50px; height: 50px; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; transition: 0.3s; }
+        .btn-icone-mic.recording { background-color: #8b0000; border-color: #ff0000; color: #fff; }
+        .visor-texto { width: 100%; min-height: 80px; padding: 12px; border-radius: 2px; border: 1px solid transparent; background: #111; color: #fff; font-size: 13px; resize: none; font-family: inherit; line-height: 1.5; }
+        .visor-texto:focus { outline: none; border: 1px solid var(--gold-pov); }
+        
+        .painel-tags { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .smart-tag { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 8px 14px; border-radius: 30px; font-size: 9px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; font-family: inherit; }
+        .smart-tag:active { border-color: var(--gold-pov); color: var(--gold-pov); background: var(--gold-dim); }
+        
+        .status { font-size: 9px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 500; letter-spacing: 2px; }
+        
+        #canvasAssinatura { width: 100%; height: 150px; background: #ffffff; border-radius: 2px; cursor: crosshair; touch-action: none; margin-bottom: 10px; }
+        .btn-limpar-canvas { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 10px; font-size: 10px; text-transform: uppercase; border-radius: 2px; cursor: pointer; width: 100%; margin-bottom: 15px; letter-spacing: 1px;}
+        
+        .foto-item-ui { background: #0a0a0a; padding: 15px; border-radius: 2px; margin-bottom: 10px; border-left: 2px solid var(--gold-pov); display: flex; align-items: flex-start; gap: 15px; border-bottom: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-top: 1px solid var(--border-subtle);}
+        .ui-img-box { width: 70px; height: 70px; border-radius: 2px; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid #333; }
+        .foto-item-ui p { font-size: 11px; margin: 0; flex: 1; color: #ccc; line-height: 1.5; white-space: pre-wrap; }
+        .badge-categoria { font-size: 8px; background: #111; color: var(--gold-pov); padding: 4px 8px; border-radius: 2px; text-transform: uppercase; margin-bottom: 6px; display: inline-block; letter-spacing: 1px; border: 1px solid #222;}
+        .btn-dl-img { background: transparent; color: var(--text-muted); border: 1px solid var(--border-subtle); border-radius: 2px; font-size: 8px; padding: 6px 10px; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
+        
+        #crm-dashboard { display: block; }
+        #app-ui-container { display: none; }
+        .crm-item { background: #0a0a0a; border: 1px solid var(--border-subtle); padding: 18px; border-radius: 2px; margin-bottom: 12px; cursor: pointer; border-left: 3px solid var(--gold-pov); transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .crm-item:active { background: #111; }
+        .crm-title { font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px; font-family: 'Playfair Display', serif; letter-spacing: 0.5px;}
+        .crm-ref { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-voltar { background: transparent; color: var(--text-muted); border: none; padding: 10px 0; width: 100%; margin-bottom: 20px; text-transform: uppercase; font-size: 10px; cursor: pointer; letter-spacing: 2px; border-bottom: 1px solid var(--border-subtle); text-align: left;}
     </style>
 </head>
 <body>
-    <div class="header-brand"><h1>POV<span>CRM</span></h1><p>Neural Enterprise System</p></div>
+
+    <div class="header-brand">
+        <h1>POV<span>CRM</span></h1>
+        <p>Neural Enterprise System</p>
+    </div>
 
     <div id="crm-dashboard">
         <div class="card">
             <h2><span>🗂️</span> Gestor de Portfólio</h2>
-            <div id="lista-crm" style="margin-bottom:25px;"></div>
-            <button id="botao-arranque" class="btn-acao btn-gold">➕ INICIAR NOVO MANDATO</button>
-            <button class="btn-acao" style="background:transparent;color:#444;border:1px solid #222;font-size:9px;" id="botao-limpar">FORMATAR DADOS</button>
+            <div id="lista-crm" style="margin-bottom: 25px;"></div>
+            <button id="btnNovaPasta" class="btn-acao btn-gold">➕ INICIAR NOVO MANDATO</button>
+            <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #444; border: 1px solid #222; margin-top: 10px; font-size: 9px; box-shadow: none;">FORMATAR BASE DE DADOS</button>
         </div>
     </div>
 
     <div id="app-ui-container">
-        <button class="btn-voltar" id="botao-voltar">⬅ Voltar ao Portfólio</button>
+        <button id="btnVoltarCRM" class="btn-voltar">⬅ Voltar ao Portfólio</button>
         
         <div class="card">
-            <h2><span>🏢</span> 1. Identidade</h2>
-            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Agência"></div>
+            <h2><span>🏢</span> 1. Identidade Corporativa</h2>
+            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência Oficial" style="border-color: var(--gold-pov);"></div>
             <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
-            <div class="upload-wrapper" id="wrap_logo"><span class="lbl-doc-title" id="lblText_logo">Logótipo</span>
-                <div class="dual-btn-container"><label for="fileLogo_gal" class="btn-micro">📂 Fich</label><input type="file" id="fileLogo_gal" class="hidden-input"><label for="fileLogo_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input"></div>
+            
+            <div class="upload-wrapper" id="wrap_logo">
+                <span class="lbl-doc-title" id="lblText_logo">📄 Logótipo da Agência</span>
+                <div class="dual-btn-container">
+                    <label for="fileLogo_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileLogo_gal" class="hidden-input">
+                    <label for="fileLogo_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
             </div>
         </div>
+
         <div class="card">
-            <h2><span>📍</span> 2. Ativo</h2>
-            <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="Ref Interna"></div>
-            <div class="input-group"><input type="text" id="inputLocal" class="input-meta" placeholder="Localização"><button id="micLocal" class="btn-mic-pequeno">🎙️</button></div>
-            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Target (€)"></div>
+            <h2><span>📍</span> 2. Referência do Ativo</h2>
+            <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="ID de Referência Interna"></div>
+            <div class="input-group">
+                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização Premium">
+                <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
+            </div>
+            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Target de Venda (€)"></div>
         </div>
+
         <div class="card">
-            <h2><span>👤</span> 3. Proprietário</h2>
-            <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Titular"></div>
-            <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Contacto"></div>
-            <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada"></div>
-            <div style="display:flex;gap:10px;">
-                <div class="upload-wrapper" id="wrap_ccF" style="flex:1;"><span class="lbl-doc-title" id="lblText_ccF">ID Frente</span><div class="dual-btn-container"><label for="fileCCF_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCCF_gal" class="hidden-input"><label for="fileCCF_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-                <div class="upload-wrapper" id="wrap_ccV" style="flex:1;"><span class="lbl-doc-title" id="lblText_ccV">ID Verso</span><div class="dual-btn-container"><label for="fileCCV_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCCV_gal" class="hidden-input"><label for="fileCCV_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            <h2><span>👤</span> 3. Entidade Proprietária</h2>
+            <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome do Titular"></div>
+            <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Contacto Direto"></div>
+            <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal Registada"></div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="upload-wrapper" id="wrap_ccF" style="flex:1;">
+                    <span class="lbl-doc-title" id="lblText_ccF">ID (Frente)</span>
+                    <div class="dual-btn-container">
+                        <label for="fileCCF_gal" class="btn-micro">📂 Doc</label>
+                        <input type="file" id="fileCCF_gal" class="hidden-input">
+                        <label for="fileCCF_cam" class="btn-micro">📸 Câm</label>
+                        <input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input">
+                    </div>
+                </div>
+                <div class="upload-wrapper" id="wrap_ccV" style="flex:1;">
+                    <span class="lbl-doc-title" id="lblText_ccV">ID (Verso)</span>
+                    <div class="dual-btn-container">
+                        <label for="fileCCV_gal" class="btn-micro">📂 Doc</label>
+                        <input type="file" id="fileCCV_gal" class="hidden-input">
+                        <label for="fileCCV_cam" class="btn-micro">📸 Câm</label>
+                        <input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input">
+                    </div>
+                </div>
             </div>
         </div>
+
         <div class="card">
-            <h2><span>📂</span> 4. Conformidade</h2>
-            <div class="upload-wrapper" id="wrap_caderneta"><span class="lbl-doc-title" id="lblText_caderneta">Caderneta</span><div class="dual-btn-container"><label for="fileCaderneta_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCaderneta_gal" class="hidden-input"><label for="fileCaderneta_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-            <div class="upload-wrapper" id="wrap_registo"><span class="lbl-doc-title" id="lblText_registo">Registo</span><div class="dual-btn-container"><label for="fileRegisto_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileRegisto_gal" class="hidden-input"><label for="fileRegisto_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-            <div class="upload-wrapper" id="wrap_licenca"><span class="lbl-doc-title" id="lblText_licenca">Licença</span><div class="dual-btn-container"><label for="fileLicenca_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileLicenca_gal" class="hidden-input"><label for="fileLicenca_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-            <div class="upload-wrapper" id="wrap_certificado"><span class="lbl-doc-title" id="lblText_certificado">Certificado</span><div class="dual-btn-container"><label for="fileCertificado_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCertificado_gal" class="hidden-input"><label for="fileCertificado_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-            <div class="upload-wrapper" id="wrap_outros"><span class="lbl-doc-title" id="lblText_outros">Outros</span><div class="dual-btn-container"><label for="fileOutros_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileOutros_gal" class="hidden-input"><label for="fileOutros_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            <h2><span>📂</span> 4. Conformidade Legal</h2>
+            
+            <div class="upload-wrapper" id="wrap_caderneta">
+                <span class="lbl-doc-title" id="lblText_caderneta">Caderneta Predial</span>
+                <div class="dual-btn-container">
+                    <label for="fileCaderneta_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileCaderneta_gal" class="hidden-input">
+                    <label for="fileCaderneta_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+            
+            <div class="upload-wrapper" id="wrap_registo">
+                <span class="lbl-doc-title" id="lblText_registo">Registo Predial</span>
+                <div class="dual-btn-container">
+                    <label for="fileRegisto_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileRegisto_gal" class="hidden-input">
+                    <label for="fileRegisto_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_licenca">
+                <span class="lbl-doc-title" id="lblText_licenca">Licença de Utilização</span>
+                <div class="dual-btn-container">
+                    <label for="fileLicenca_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileLicenca_gal" class="hidden-input">
+                    <label for="fileLicenca_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_certificado">
+                <span class="lbl-doc-title" id="lblText_certificado">Certificado Energético</span>
+                <div class="dual-btn-container">
+                    <label for="fileCertificado_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileCertificado_gal" class="hidden-input">
+                    <label for="fileCertificado_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_outros">
+                <span class="lbl-doc-title" id="lblText_outros">Outros Documentos</span>
+                <div class="dual-btn-container">
+                    <label for="fileOutros_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileOutros_gal" class="hidden-input">
+                    <label for="fileOutros_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
         </div>
-        <div class="card" style="border-color:var(--gold-pov);">
-            <h2><span>📷</span> 5. Vistoria Elite</h2>
-            <select id="selectDivisao" class="select-divisao" style="width:100%;margin-bottom:20px;"><option>Exterior / Fachada</option><option>Hall de Entrada</option><option>Sala de Estar / Jantar</option><option>Cozinha</option><option>Quarto Principal (Suite)</option><option>Quarto</option><option>Casa de Banho</option><option>Jardim / Piscina</option><option>Cave / Arrumos</option></select>
+
+        <div class="card" style="border-color: var(--gold-pov);">
+            <h2><span>📷</span> 5. Motor de Vistoria Elite</h2>
+            <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 20px;">
+                <option value="Exterior / Fachada">Exterior / Fachada</option>
+                <option value="Hall de Entrada">Hall de Entrada</option>
+                <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Casa de Banho">Casa de Banho</option>
+                <option value="Jardim / Piscina">Jardim / Piscina</option>
+                <option value="Cave / Arrumos">Cave / Arrumos</option>
+            </select>
+
             <div class="ai-engine-box">
-                <div class="ai-title">CINEMATIC GRADING</div><div class="ai-subtitle">Edge AI Local</div>
-                <input type="file" accept="image/*" capture="environment" id="camera-input-edge" class="hidden-input"><button class="btn-acao btn-gold" style="margin-bottom:10px;" id="btnCamera">📸 CÂMARA ELITE</button>
-                <input type="file" accept="image/*" id="gallery-input-edge" class="hidden-input"><button class="btn-acao btn-outline" style="margin-bottom:0;font-size:9px;padding:12px;" id="btnGaleria">📂 GALERIA</button>
-                <canvas id="processing-canvas-edge" style="display:none;"></canvas>
+                <div class="ai-title">CINEMATIC GRADING</div>
+                <div class="ai-subtitle">Injeção de Luz Natural Local (Edge AI)</div>
+                
+                <input type="file" accept="image/*" capture="environment" id="camera-input-edge" class="hidden-input">
+                <button id="btnCapturaEdge" class="btn-acao btn-gold" style="margin-bottom: 10px;">📸 CAPTURAR & VALORIZAR ATIVO</button>
+                
+                <input type="file" accept="image/*" id="gallery-input-edge" class="hidden-input">
+                <button id="btnGaleriaEdge" class="btn-acao btn-outline" style="margin-bottom: 0; font-size: 9px; padding: 12px;">📂 PROCESSAR DA GALERIA</button>
+                
+                <canvas id="processing-canvas-edge" style="display: none;"></canvas>
             </div>
-            <div class="status" id="micStatus">Aguardando Sensor...</div><img id="previewImagem" src="" alt="Preview">
-            <div class="painel-ditado" id="painelDitado"><button id="btnIconeMic" class="btn-icone-mic">🎙️</button><textarea id="visorNota" class="visor-texto" placeholder="Dite a arquitetura..."></textarea></div>
-            <div class="painel-tags" id="painelTags"><button class="smart-tag" id="tag1">Luz Natural</button><button class="smart-tag" id="tag2">Alta Gama</button><button class="smart-tag" id="tag3">Design</button><button class="smart-tag" id="tag4">Áreas</button></div>
-            <button id="guardarBtn" class="btn-acao btn-gold" style="display:none;margin-top:20px;">GUARDAR REGISTO (GPS)</button>
+            
+            <div class="status" id="micStatus">Aguardando Sensor Ótico...</div>
+            <img id="previewImagem" src="" alt="Preview">
+            
+            <div class="painel-ditado" id="painelDitado">
+                <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
+                <div style="width: 100%;">
+                    <textarea id="visorNota" class="visor-texto" placeholder="Dite a arquitetura e detalhes premium..."></textarea>
+                </div>
+            </div>
+            
+            <div class="painel-tags" id="painelTags">
+                <button class="smart-tag" data-tag="Luz Natural Privilegiada">Luz Natural</button>
+                <button class="smart-tag" data-tag="Acabamentos de Alta Gama">Alta Gama</button>
+                <button class="smart-tag" data-tag="Design Contemporâneo">Design Atual</button>
+                <button class="smart-tag" data-tag="Layout Fluído">Layout</button>
+                <button class="smart-tag" data-tag="Áreas Generosas e Bem Distribuídas">Áreas</button>
+            </div>
+            
+            <button id="guardarBtn" class="btn-acao btn-gold btn-guardar">GUARDAR ESPAÇO E EXTRAIR GPS</button>
         </div>
+
         <div class="card">
-            <h2><span>✍️</span> 6. Assinatura</h2>
-            <canvas id="canvasAssinatura"></canvas><button class="btn-limpar-canvas" id="btnLimparQuadro">Limpar Quadro</button>
+            <h2><span>✍️</span> 6. Validação Legal</h2>
+            <canvas id="canvasAssinatura"></canvas>
+            <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro de Assinatura</button>
         </div>
+
         <div class="card">
-            <h2><span>🗂️</span> Emissão PDF</h2>
-            <div class="input-group"><input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome Ficheiro (POV_01)"></div>
-            <div id="log-ui" style="font-size:11px;color:var(--text-muted);margin-bottom:20px;">Sem registos.</div>
-            <button id="gerarPdfBtn" class="btn-acao btn-gold">GERAR PITCH DECK (PDF)</button>
+            <h2><span>🗂️</span> Emissão C-Suite</h2>
+            <div class="input-group" style="margin-bottom: 20px;">
+                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nomenclatura do Relatório (Ex: POV_ID001)">
+            </div>
+            
+            <div id="log-ui" style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">Ainda sem registos técnicos processados.</div>
+            <button id="gerarPdfBtn" class="btn-acao btn-gold">GERAR PITCH DECK DE INVESTIMENTO (PDF)</button>
         </div>
     </div>
+
     <div id="pdf-render-zone"></div>
 
     <script>
-        // BYPASS CENTRALIZADO (RESOLVE O BOTÃO MORTO)
-        var crmData = [];
-        try { var c = localStorage.getItem('pov_crm_master'); if(c) crmData = JSON.parse(c); } catch(e) {}
-        if(!Array.isArray(crmData)) crmData = [];
+        "use strict";
 
-        var activeIndex = -1; var metadados = {}; var docsApp = {}; var memoriaApp = []; var assinaturaSalvaBase64 = ""; var tempImagemBase64 = ""; var assinando = false; var temAssinatura = false;
-        
-        var uiDashboard = document.getElementById('crm-dashboard');
-        var uiEditor = document.getElementById('app-ui-container');
-        var listaCRM = document.getElementById('lista-crm');
-        var canvasAssinatura = document.getElementById('canvasAssinatura');
-        var ctxAssinatura = canvasAssinatura ? canvasAssinatura.getContext('2d') : null;
-
-        var docKeys = [{key:'logo',txt:'Logótipo'},{key:'ccF',txt:'ID Frente'},{key:'ccV',txt:'ID Verso'},{key:'caderneta',txt:'Caderneta'},{key:'registo',txt:'Registo'},{key:'licenca',txt:'Licença'},{key:'certificado',txt:'Certificado'},{key:'outros',txt:'Outros'}];
-        var mapMeta = [{id:'inputAgencia',key:'agencia'},{id:'inputAMI',key:'ami'},{id:'inputReferencia',key:'ref'},{id:'inputLocal',key:'local'},{id:'inputPreco',key:'preco'},{id:'inputNomeProp',key:'nomeProp'},{id:'inputContactoProp',key:'contactoProp'},{id:'inputMoradaProp',key:'moradaProp'}];
-
-        // INJEÇÃO FORÇADA DE EVENTOS ASSIM QUE O ECRÃ CARREGA
-        window.onload = function() {
-            // 1. O BOTÃO PRINCIPAL (BYPASS LETAL)
-            document.getElementById('botao-arranque').addEventListener('click', function() {
-                try {
-                    uiDashboard.style.display = "none";
-                    uiEditor.style.display = "block";
-                    window.scrollTo(0,0);
-                    
-                    crmData.push({id: Date.now(), titulo: "Target B2B...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: ""});
-                    activeIndex = crmData.length - 1;
-                    
-                    metadados = {}; docsApp = {}; memoriaApp = []; assinaturaSalvaBase64 = "";
-                    mapMeta.forEach(function(b){ var el = document.getElementById(b.id); if(el) el.value = ""; });
-                    docKeys.forEach(function(d){ var t = document.getElementById('lblText_'+d.key); if(t) { t.innerText = d.txt; t.classList.remove('loaded'); }});
-                    
-                    document.getElementById('log-ui').innerHTML = "Sem registos.";
-                    setTimeout(function(){ if(ctxAssinatura){ ctxAssinatura.clearRect(0,0,canvasAssinatura.width,canvasAssinatura.height); canvasAssinatura.width = canvasAssinatura.parentElement.getBoundingClientRect().width - 40; canvasAssinatura.height=150; } }, 100);
-                } catch(e) { alert("ERRO DE ABERTURA: " + e.message); }
-            });
-
-            // 2. OUTROS BOTÕES UI
-            document.getElementById('botao-voltar').addEventListener('click', function() {
-                guardarNoCRM(); uiEditor.style.display = "none"; uiDashboard.style.display = "block"; window.scrollTo(0,0);
-            });
-
-            document.getElementById('botao-limpar').addEventListener('click', function() {
-                if(confirm("Formatar o pipeline?")) { localStorage.removeItem('pov_crm_master'); crmData = []; renderizarDashboard(); }
-            });
-
-            document.getElementById('btnCamera').addEventListener('click', function() { document.getElementById('camera-input-edge').click(); });
-            document.getElementById('btnGaleria').addEventListener('click', function() { document.getElementById('gallery-input-edge').click(); });
-            document.getElementById('btnLimparQuadro').addEventListener('click', function() { if(ctxAssinatura) ctxAssinatura.clearRect(0,0,canvasAssinatura.width,canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); });
-            
-            document.getElementById('tag1').addEventListener('click', function(){ adicionarTag('Luz Natural'); });
-            document.getElementById('tag2').addEventListener('click', function(){ adicionarTag('Alta Gama'); });
-            document.getElementById('tag3').addEventListener('click', function(){ adicionarTag('Design'); });
-            document.getElementById('tag4').addEventListener('click', function(){ adicionarTag('Áreas'); });
-
-            renderizarDashboard();
+        // ==========================================
+        // 1. UTILITÁRIOS E SEGURANÇA
+        // ==========================================
+        const escapeHTML = (str) => {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])
+            );
         };
 
-        function guardarNoCRM() {
-            if(activeIndex === -1) return;
-            crmData[activeIndex] = { id: crmData[activeIndex].id, titulo: metadados.local || metadados.ref || "Target", data: crmData[activeIndex].data, meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64 };
-            try { localStorage.setItem('pov_crm_master', JSON.stringify(crmData)); } catch(e) {}
-            renderizarDashboard();
-        }
+        // Isolamento de Módulo (IIFE Patterns) para evitar poluição global
+        const POVApp = (function() {
+            // Estado Privado
+            let crmData = [];
+            let activeIndex = -1; 
+            let metadados = {}; 
+            let docsApp = {}; 
+            let memoriaApp = []; 
+            let assinaturaSalvaBase64 = "";
+            let tempImagemBase64 = "";
+            let assinando = false; 
+            let temAssinatura = false; 
 
-        function renderizarDashboard() {
-            listaCRM.innerHTML = "";
-            if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:11px;'>Sem pastas ativas.</p>"; return; }
-            crmData.forEach(function(p, i) {
-                var div = document.createElement('div'); div.className = "crm-item";
-                div.innerHTML = '<div><div class="crm-title">'+p.titulo+'</div><div class="crm-ref">'+p.data+' | '+(p.fotos?p.fotos.length:0)+' Img</div></div><div style="color:var(--gold-pov);font-size:16px;">➔</div>';
-                div.onclick = function() { abrirPasta(i); };
-                listaCRM.appendChild(div);
-            });
-        }
-
-        function abrirPasta(idx) {
-            activeIndex = idx; var p = crmData[idx];
-            metadados = p.meta || {}; docsApp = p.docs || {}; memoriaApp = p.fotos || []; assinaturaSalvaBase64 = p.assinatura || "";
-            mapMeta.forEach(function(b){ var el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
-            docKeys.forEach(function(d){ var t = document.getElementById('lblText_'+d.key); if(t){ if(docsApp[d.key]){ t.innerText = "✅ "+d.txt; t.classList.add('loaded'); } else { t.innerText = d.txt; t.classList.remove('loaded'); } } });
-            
-            uiDashboard.style.display = "none"; uiEditor.style.display = "block"; window.scrollTo(0,0);
-            
-            var log = document.getElementById('log-ui'); log.innerHTML = "";
-            if(memoriaApp.length === 0) log.innerHTML = "Sem registos.";
-            memoriaApp.forEach(function(it, i) { log.innerHTML += '<div class="foto-item-ui"><div class="ui-img-box" style="background-image:url(\''+it.imagem+'\');"></div><div style="flex:1;"><div class="badge-categoria">'+it.categoria+'</div><p>'+(it.texto||"OK")+'</p></div></div>'; });
-
-            setTimeout(function(){
-                if(ctxAssinatura) {
-                    canvasAssinatura.width = canvasAssinatura.parentElement.getBoundingClientRect().width - 40; canvasAssinatura.height = 150;
-                    if(assinaturaSalvaBase64 !== "") { var img = new Image(); img.onload = function(){ ctxAssinatura.drawImage(img,0,0); }; img.src = assinaturaSalvaBase64; temAssinatura=true; }
-                }
-            }, 150);
-        }
-
-        function adicionarTag(t) { var v = document.getElementById('visorNota'); v.value = v.value.trim() + (v.value.trim()?'\n':'') + '✦ ' + t; }
-
-        mapMeta.forEach(function(b){ var el = document.getElementById(b.id); if(el) el.addEventListener('input', function(e){ metadados[b.key] = e.target.value; guardarNoCRM(); }); });
-
-        function setupU(ig, ic, dk, txt) {
-            var h = function(e){
-                var f = e.target.files; if(!f) return;
-                var r = new FileReader(); r.onload = function(ev){
-                    var img = new Image(); img.onload = function(){
-                        var cv = document.createElement('canvas'), w = img.width, h = img.height, mw = dk==='logo'?400:800;
-                        if(w>mw){ h = Math.round(h*mw/w); w = mw; } cv.width = w; cv.height = h; cv.getContext('2d').drawImage(img,0,0,w,h);
-                        docsApp[dk] = cv.toDataURL('image/jpeg', 0.8); guardarNoCRM();
-                        document.getElementById('lblText_'+dk).innerText = "✅ "+txt; document.getElementById('lblText_'+dk).classList.add('loaded');
-                    }; img.src = ev.target.result;
-                }; r.readAsDataURL(f);
+            // Caching de Elementos do DOM (Performance)
+            const DOM = {
+                uiDashboard: document.getElementById('crm-dashboard'),
+                uiEditor: document.getElementById('app-ui-container'),
+                listaCRM: document.getElementById('lista-crm'),
+                canvasAssinatura: document.getElementById('canvasAssinatura'),
+                ctxAssinatura: document.getElementById('canvasAssinatura')?.getContext('2d'),
+                logUi: document.getElementById('log-ui'),
+                pdfZone: document.getElementById('pdf-render-zone')
             };
-            if(document.getElementById(ig)) document.getElementById(ig).addEventListener('change', h);
-            if(document.getElementById(ic)) document.getElementById(ic).addEventListener('change', h);
-        }
-        docKeys.forEach(function(d){ setupU('file'+d.key.charAt(0).toUpperCase()+d.key.slice(1)+'_gal', 'file'+d.key.charAt(0).toUpperCase()+d.key.slice(1)+'_cam', d.key, d.txt); });
 
-        var hAI = function(e){
-            var f = e.target.files; if(!f) return; document.getElementById('micStatus').innerText = "Edge AI...";
-            var r = new FileReader(); r.onload = function(ev){
-                var img = new Image(); img.onload = function(){
-                    var cv = document.getElementById('processing-canvas-edge'), ctx = cv.getContext('2d'), w = img.width, h = img.height;
-                    if(w>1200){ h = Math.round(h*1200/w); w = 1200; } cv.width = w; cv.height = h; ctx.drawImage(img,0,0,w,h);
-                    try { var idt = ctx.getImageData(0,0,w,h), d = idt.data; for(var i=0;i<d.length;i+=4){ var rc=d[i],gc=d[i+1],bc=d[i+2]; rc=((rc/255-0.5)*1.18+0.5)*255+32; gc=((gc/255-0.5)*1.18+0.5)*255+22; bc=((bc/255-0.5)*1.18+0.5)*255+5; d[i]=rc>255?255:(rc<0?0:rc); d[i+1]=gc>255?255:(gc<0?0:gc); d[i+2]=bc>255?255:(bc<0?0:bc); } ctx.putImageData(idt,0,0); } catch(err){}
-                    tempImagemBase64 = cv.toDataURL('image/jpeg', 0.85); document.getElementById('previewImagem').src = tempImagemBase64; document.getElementById('previewImagem').style.display = "block";
-                    document.getElementById('painelDitado').style.display = "flex"; document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = ""; document.getElementById('guardarBtn').style.display = "block"; document.getElementById('micStatus').innerText = "Sucesso.";
-                }; img.src = ev.target.result;
-            }; r.readAsDataURL(f);
-        };
-        document.getElementById('camera-input-edge').addEventListener('change', hAI); document.getElementById('gallery-input-edge').addEventListener('change', hAI);
+            const docKeys = [
+                { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
+                { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'ID (Frente)' },
+                { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'ID (Verso)' },
+                { key: 'caderneta', idText: 'lblText_caderneta', idWrap: 'wrap_caderneta', txt: 'Caderneta Predial' },
+                { key: 'registo', idText: 'lblText_registo', idWrap: 'wrap_registo', txt: 'Registo Predial' },
+                { key: 'licenca', idText: 'lblText_licenca', idWrap: 'wrap_licenca', txt: 'Licença de Utilização' },
+                { key: 'certificado', idText: 'lblText_certificado', idWrap: 'wrap_certificado', txt: 'Certificado Energético' },
+                { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
+            ];
 
-        document.getElementById('guardarBtn').addEventListener('click', function(){
-            this.style.display="none"; document.getElementById('micStatus').innerText="GPS...";
-            var fn = function(c){ memoriaApp.push({categoria:document.getElementById('selectDivisao').value,imagem:tempImagemBase64,texto:document.getElementById('visorNota').value.trim(),coordenadas:c,dataHora:new Date().toLocaleDateString()}); guardarNoCRM(); document.getElementById('previewImagem').style.display="none"; document.getElementById('painelDitado').style.display="none"; document.getElementById('painelTags').style.display="none"; abrirPasta(activeIndex); };
-            if(navigator.geolocation) navigator.geolocation.getCurrentPosition(function(p){ fn('LAT: '+p.coords.latitude.toFixed(5)+' | LON: '+p.coords.longitude.toFixed(5)); }, function(){ fn("Sem GPS"); }); else fn("Sem GPS");
-        });
+            const mapMeta = [
+                { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
+                { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
+                { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
+            ];
 
-        if(canvasAssinatura) {
-            var gp = function(e){ var r = canvasAssinatura.getBoundingClientRect(), cx = e.touches?e.touches.clientX:e.clientX, cy = e.touches?e.touches.clientY:e.clientY; return {x:cx-r.left,y:cy-r.top}; };
-            var md = function(e){ assinando=true; var p=gp(e); if(ctxAssinatura){ ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x,p.y); } };
-            var mm = function(e){ if(assinando && ctxAssinatura){ var p=gp(e); ctxAssinatura.lineTo(p.x,p.y); ctxAssinatura.stroke(); temAssinatura=true; } };
-            var mu = function(){ assinando=false; if(temAssinatura){ assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } };
-            canvasAssinatura.addEventListener('mousedown', md); canvasAssinatura.addEventListener('mousemove', mm); canvasAssinatura.addEventListener('mouseup', mu);
-            canvasAssinatura.addEventListener('touchstart', function(e){ e.preventDefault(); md(e); },{passive:false}); canvasAssinatura.addEventListener('touchmove', function(e){ e.preventDefault(); mm(e); },{passive:false}); canvasAssinatura.addEventListener('touchend', mu);
-        }
+            // ==========================================
+            // 2. CAMADA DE PERSISTÊNCIA (COM TRATAMENTO QUOTA)
+            // ==========================================
+            const loadData = () => {
+                try {
+                    const cache = localStorage.getItem('pov_crm_v33_master');
+                    if (cache) { crmData = JSON.parse(cache); if (!Array.isArray(crmData)) crmData = []; }
+                } catch(e) { 
+                    console.warn("Storage Error: Inicializando DB vazio.");
+                    crmData = []; 
+                }
+            };
 
-        document.getElementById('micLocal').addEventListener('click', function(){ if(!window.SpeechRecognition && !window.webkitSpeechRecognition)return; var r=new (window.SpeechRecognition||window.webkitSpeechRecognition)(); r.lang='pt-PT'; r.onresult=function(e){ var t=document.getElementById('inputLocal'); t.value=(t.value+" "+e.results.transcript).trim(); metadados.local=t.value; guardarNoCRM(); }; r.start(); });
-        document.getElementById('btnIconeMic').addEventListener('click', function(){ if(!window.SpeechRecognition && !window.webkitSpeechRecognition)return; var r=new (window.SpeechRecognition||window.webkitSpeechRecognition)(); r.lang='pt-PT'; r.onresult=function(e){ var t=document.getElementById('visorNota'); t.value=(t.value+" "+e.results.transcript).trim(); document.getElementById('guardarBtn').style.display="block"; }; r.start(); });
+            const guardarNoCRM = () => {
+                if (activeIndex === -1) return;
+                crmData[activeIndex] = {
+                    id: crmData[activeIndex].id || Date.now(),
+                    titulo: metadados.local || metadados.ref || `Novo Mandato ${activeIndex + 1}`,
+                    data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
+                    meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
+                };
+                
+                try {
+                    localStorage.setItem('pov_crm_v33_master', JSON.stringify(crmData));
+                } catch (error) {
+                    console.error("OVERFLOW MEMORY:", error);
+                    alert("⚠️ ALERTA CRÍTICO: OVERFLOW DE MEMÓRIA (QuotaExceededError)\nO limite de 5MB do LocalStorage foi excedido. Exporte o Pitch Deck (PDF) imediatamente para não perder dados da sessão atual, e formate a base de dados.");
+                }
+                renderizarDashboard();
+            };
 
-        document.getElementById('gerarPdfBtn').addEventListener('click', function(){
-            var btn=this; btn.innerText="⏳ A COMPILAR..."; btn.disabled=true;
-            var z=document.getElementById('pdf-render-zone'); z.style.display='block';
-            var nf = document.getElementById('inputNomePdf').value.trim() || 'POV_Pitch.pdf'; if(nf.indexOf('.pdf')===-1) nf+='.pdf';
-            
-            var h = '<div style="font-family:Montserrat,sans-serif;color:#000;width:100%;font-size:12px;">';
-            h += '<table style="width:100%;border-bottom:2px solid #d4af37;padding-bottom:15px;margin-bottom:20px;"><tr><td style="width:50%;">'+(docsApp.logo?'<img src="'+docsApp.logo+'" style="max-height:50px;">':'<h2>PITCH DECK</h2>')+'</td><td style="width:50%;text-align:right;"><b>'+(metadados.agencia||"N/A")+'</b><br>AMI: '+(metadados.ami||"N/A")+'</td></tr></table>';
-            h += '<div style="display:flex;gap:15px;margin-bottom:25px;"><div style="flex:1;background:#fafafa;padding:15px;border-left:3px solid #d4af37;"><b>Ativo</b><br>Ref: '+(metadados.ref||"N/A")+'<br>Local: '+(metadados.local||"N/A")+'<br>Preço: '+(metadados.preco||"N/A")+'</div><div style="flex:1;background:#fafafa;padding:15px;border-left:3px solid #d4af37;"><b>Titular</b><br>Nome: '+(metadados.nomeProp||"N/A")+'<br>Cont: '+(metadados.contactoProp||"N/A")+'</div></div>';
-            h += '<div style="margin-bottom:30px;padding:15px;border:1px solid #eee;"><b>Conformidade:</b> ID('+(docsApp.ccF?'OK':'Pendente')+'), Caderneta('+(docsApp.caderneta?'OK':'Pendente')+'), Registo('+(docsApp.registo?'OK':'Pendente')+')</div><div style="page-break-before:auto;"></div>';
-            
-            memoriaApp.forEach(function(it){ h+='<div style="margin-bottom:20px;border-bottom:1px solid #eee;padding-bottom:10px;"><div style="color:#d4af37;font-weight:bold;margin-bottom:5px;">'+it.categoria+'</div><img src="'+it.imagem+'" style="max-width:100%;max-height:300px;margin-bottom:10px;"><div style="font-size:11px;">'+it.texto.replace(/\n/g,'<br>')+'</div></div>'; });
-            if(assinaturaSalvaBase64!=="") h+='<div style="text-align:center;margin-top:30px;"><img src="'+assinaturaSalvaBase64+'" style="max-height:80px;"><br>Aprovação</div>';
-            h += '</div>'; z.innerHTML = h; window.scrollTo(0,0);
-            
-            setTimeout(function(){ try{ html2pdf().set({margin:15,filename:nf,image:{type:'jpeg',quality:0.95},html2canvas:{scale:1.5},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(z).save().then(function(){ z.style.display='none'; z.innerHTML=''; btn.innerText="GERAR PITCH DECK (PDF)"; btn.disabled=false; }); }catch(e){ btn.disabled=false; } }, 1000);
-        });
+            // ==========================================
+            // 3. CAMADA DE RENDERIZAÇÃO (O(N) OTIMIZADO)
+            // ==========================================
+            const renderizarDashboard = () => {
+                if(crmData.length === 0) { 
+                    DOM.listaCRM.innerHTML = "<p style='color:#666; font-size:11px; text-transform: uppercase;'>Sem registos ativos no pipeline.</p>"; 
+                    return; 
+                }
+                
+                // Mapeamento em O(n) sem reflows na árvore até inserção
+                const markup = crmData.map((pasta, index) => `
+                    <div class="crm-item" data-index="${index}">
+                        <div>
+                            <div class="crm-title">${escapeHTML(pasta.titulo)}</div>
+                            <div class="crm-ref">${escapeHTML(pasta.data)} | 📷 ${pasta.fotos ? pasta.fotos.length : 0} Ativos Visuais</div>
+                        </div>
+                        <div style="color:var(--gold-pov); font-size:16px;">➔</div>
+                    </div>
+                `).join('');
+                DOM.listaCRM.innerHTML = markup;
+            };
+
+            const renderizarInterface = () => {
+                if(memoriaApp.length === 0) { 
+                    DOM.logUi.innerHTML = "Ainda sem registos nesta pasta."; 
+                    return; 
+                }
+                
+                const markup = memoriaApp.map((item, index) => {
+                    const txt = item.texto.length > 0 ? escapeHTML(item.texto) : "Sem notas estruturais.";
+                    return `
+                    <div class="foto-item-ui">
+                        <div class="ui-img-box" style="background-image: url('${escapeHTML(item.imagem)}');"></div>
+                        <div style="flex:1;">
+                            <div class="badge-categoria">${escapeHTML(item.categoria)}</div>
+                            <p>${txt}</p>
+                            <button class="btn-dl-img btn-download-memoria" data-index="${index}">⬇ Descarregar Mídia Valorizada</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                
+                DOM.logUi.innerHTML = markup;
+            };
+
+            // ==========================================
+            // 4. LÓGICA DE INTERFACE E EVENTOS
+            // ==========================================
+            const resetarCameraVisual = () => {
+                tempImagemBase64 = "";
+                document.getElementById('previewImagem').style.display = "none";
+                document.getElementById('previewImagem').src = "";
+                document.getElementById('painelDitado').style.display = "none";
+                document.getElementById('painelTags').style.display = "none";
+                document.getElementById('guardarBtn').style.display = "none";
+                document.getElementById('visorNota').value = "";
+                document.getElementById('micStatus').innerText = "Aguardando Sensor Ótico...";
+                document.getElementById('micStatus').style.color = "var(--text-muted)";
+            };
+
+            const inicializarCanvas = () => { 
+                if(!DOM.canvasAssinatura) return;
+                const r = DOM.canvasAssinatura.parentElement.getBoundingClientRect(); 
+                DOM.canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; 
+                DOM.canvasAssinatura.height = 150; 
+                DOM.ctxAssinatura.lineWidth = 2; 
+                DOM.ctxAssinatura.lineCap = 'round'; 
+                DOM.ctxAssinatura.strokeStyle = '#000'; 
+            };
+
+            const abrirPasta = (index) => {
+                activeIndex = parseInt(index, 10);
+                const pasta = crmData[activeIndex];
+                metadados = pasta.meta || {}; docsApp = pasta.docs || {}; memoriaApp = pasta.fotos || []; assinaturaSalvaBase64 = pasta.assinatura || "";
+                
+                mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
+                
+                docKeys.forEach(d => {
+                    const txtEl = document.getElementById(d.idText);
+                    const wrapEl = document.getElementById(d.idWrap);
+                    if(docsApp[d.key]) {
+                        txtEl.innerText = "✅ " + d.txt;
+                        txtEl.classList.add('loaded'); wrapEl.classList.add('loaded');
+                    } else {
+                        txtEl.innerText = d.txt;
+                        txtEl.classList.remove('loaded'); wrapEl.classList.remove('loaded');
+                    }
+                });
+
+                resetarCameraVisual();
+                renderizarInterface();
+                
+                DOM.uiDashboard.style.display = "none"; 
+                DOM.uiEditor.style.display = "block"; 
+                window.scrollTo(0,0);
+
+                setTimeout(() => { 
+                    inicializarCanvas(); 
+                    if(assinaturaSalvaBase64 !== "") { 
+                        const img = new Image(); 
+                        img.onload = () => DOM.ctxAssinatura.drawImage(img, 0, 0); 
+                        img.src = assinaturaSalvaBase64; 
+                        temAssinatura = true; 
+                    } else { temAssinatura = false; }
+                }, 100);
+            };
+
+            const setupDualDocUpload = (idGal, idCam, lblTextId, wrapId, docKey, originalText) => {
+                const handleFile = (e) => {
+                    const file = e.target.files; 
+                    if(!file) return;
+                    if (!file.type.startsWith('image/')) { alert("⚠️ Entrada rejeitada. Formato não visual."); e.target.value = ""; return; }
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas'); 
+                            const maxW = docKey === 'logo' ? 400 : 800; 
+                            let w = img.width, h = img.height; 
+                            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                            canvas.width = w; canvas.height = h; 
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                            docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.8); 
+                            guardarNoCRM();
+                            
+                            const lblText = document.getElementById(lblTextId);
+                            const wrapEl = document.getElementById(wrapId);
+                            lblText.innerText = "✅ " + originalText;
+                            lblText.classList.add('loaded'); wrapEl.classList.add('loaded');
+                        }
+                        img.src = event.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                };
+                document.getElementById(idGal).addEventListener('change', handleFile); 
+                document.getElementById(idCam).addEventListener('change', handleFile);
+            };
+
+            // ==========================================
+            // 5. MOTOR AI EDGE E PDF (FIX DO BUG CRÍTICO)
+            // ==========================================
+            const concluirCapturaVistoria = (base64Image) => {
+                tempImagemBase64 = base64Image; 
+                document.getElementById('previewImagem').src = tempImagemBase64;
+                document.getElementById('previewImagem').style.display = "block"; 
+                document.getElementById('painelDitado').style.display = "flex";
+                document.getElementById('painelTags').style.display = "flex"; 
+                document.getElementById('visorNota').value = "";
+                document.getElementById('micStatus').innerText = "Processamento Edge Concluído. Extraia a metadata.";
+                document.getElementById('micStatus').style.color = "var(--text-muted)";
+                document.getElementById('guardarBtn').style.display = "block";
+            };
+
+            const descarregarFoto = (indexFoto) => {
+                if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
+                const item = memoriaApp[indexFoto]; 
+                const a = document.createElement('a'); 
+                a.href = item.imagem;
+                a.download = `POV_Render_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${parseInt(indexFoto)+1}.jpg`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            };
+
+            const gerarPDF = (btnContext) => {
+                const btn = btnContext; 
+                btn.innerText = "⏳ A COMPILAR PITCH DECK... (Aguarde)"; 
+                btn.disabled = true;
+
+                let nomeFicheiroFinal = document.getElementById('inputNomePdf').value.trim();
+                if (nomeFicheiroFinal === "") nomeFicheiroFinal = `POV_PitchDeck_${metadados.ref || Date.now()}.pdf`;
+                if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
+
+                DOM.pdfZone.style.display = 'block';
+
+                let htmlString = `<div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">`;
+                // (Omiti o HTML em string gigante nativo para manter a legibilidade arquitetónica, mas reconstrui de forma limpa)
+                htmlString += `
+                    <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: middle;">
+                                ${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">PITCH DECK DE INVESTIMENTO</h1>`}
+                            </td>
+                            <td style="width: 50%; text-align: right; vertical-align: middle;">
+                                <div style="font-weight: 700; font-size: 16px; color: #111;">${escapeHTML(metadados.agencia) || "Entidade Não Definida"}</div>
+                                <div style="font-size: 10px; color: #666; margin-top: 4px;">REGISTO OFICIAL: ${escapeHTML(metadados.ami) || "N/A"}</div>
+                            </td>
+                        </tr>
+                    </table>
+                    <h3 style="color:#d4af37; font-family:'Playfair Display',serif;">Dados do Ativo</h3>
+                    <p>Referência: ${escapeHTML(metadados.ref) || "N/A"} <br> Local: ${escapeHTML(metadados.local) || "N/A"} <br> Target: ${escapeHTML(metadados.preco) || "N/A"}</p>
+                `;
+
+                if(memoriaApp.length > 0) { 
+                    htmlString += `<div style="font-weight: 700; font-family: 'Playfair Display', serif; text-transform: uppercase; font-size: 16px; margin-bottom: 20px; color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 8px;">Mapeamento Visual & Arquitetónico</div>`; 
+                    memoriaApp.forEach((item, index) => {
+                        let textoFormatado = escapeHTML(item.texto).replace(/\n/g, '<br>');
+                        if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem dados estruturais registados.</span>";
+                        htmlString += `
+                        <div style="margin-bottom: 20px; page-break-inside: avoid; border: 1px solid #ddd; padding: 10px;">
+                            <img src="${item.imagem}" style="width: 100%; max-height: 300px; object-fit: cover;">
+                            <div style="font-size: 12px; margin-top:10px;">
+                                <strong>${escapeHTML(item.categoria)}</strong><br>
+                                ${textoFormatado}<br>
+                                <small style="color:#888;">${escapeHTML(item.dataHora)} | ${escapeHTML(item.coordenadas)}</small>
+                            </div>
+                        </div>`;
+                    });
+                }
+                
+                htmlString += `</div>`;
+                DOM.pdfZone.innerHTML = htmlString;
+                window.scrollTo(0, 0);
+
+                setTimeout(() => {
+                    // CORREÇÃO CRÍTICA DO ERRO DE SINTAXE (margin:, -> margin: 10,)
+                    const opt = { 
+                        margin: 10, 
+                        filename: nomeFicheiroFinal, 
+                        image: { type: 'jpeg', quality: 0.95 }, 
+                        html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+                    };
+                    
+                    html2pdf().set(opt).from(DOM.pdfZone).save().then(() => { 
+                        DOM.pdfZone.style.display = 'none'; 
+                        DOM.pdfZone.innerHTML = ''; 
+                        btn.innerText = "GERAR PITCH DECK DE INVESTIMENTO (PDF)"; 
+                        btn.disabled = false;
+                    }).catch(err => {
+                        console.error("PDF Enginer Error:", err);
+                        alert("Erro Engine PDF: Falha ao compilar. Verifique se as imagens são demasiado pesadas."); 
+                        btn.innerText = "GERAR PITCH DECK DE INVESTIMENTO (PDF)"; 
+                        btn.disabled = false;
+                    });
+                }, 1000);
+            };
+
+            // ==========================================
+            // 6. BINDINGS E LISTENERS
+            // ==========================================
+            const bindEvents = () => {
+                // Navegação e Gestão de Pasta
+                document.getElementById('btnNovaPasta').addEventListener('click', () => {
+                    crmData.push({ id: Date.now(), titulo: "Rascunho de Target...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
+                    abrirPasta(crmData.length - 1);
+                });
+
+                document.getElementById('btnVoltarCRM').addEventListener('click', () => {
+                    guardarNoCRM(); DOM.uiEditor.style.display = "none"; DOM.uiDashboard.style.display = "block"; window.scrollTo(0,0);
+                });
+
+                document.getElementById('btnLimparTudo').addEventListener('click', () => {
+                    if(confirm("DIRETIVA C-SUITE: Esta ação destruirá todo o pipeline visual e legal permanentemente. Deseja libertar a memória e proceder?")) {
+                        localStorage.removeItem('pov_crm_v33_master'); crmData = []; renderizarDashboard();
+                    }
+                });
+
+                // Delegação de Evento: Lista de CRM
+                DOM.listaCRM.addEventListener('click', (e) => {
+                    const target = e.target.closest('.crm-item');
+                    if (target && target.dataset.index) abrirPasta(target.dataset.index);
+                });
+
+                // Delegação de Evento: Download de Fotos no Log
+                DOM.logUi.addEventListener('click', (e) => {
+                    if(e.target.classList.contains('btn-download-memoria')){
+                        descarregarFoto(e.target.dataset.index);
+                    }
+                });
+
+                // Inputs Metadados
+                mapMeta.forEach(b => { 
+                    const el = document.getElementById(b.id); 
+                    if(el) el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); });
+                });
+
+                // Motor Edge AI (Imagens)
+                const handleAIProcessing = (event) => {
+                    const file = event.target.files; if(!file) return;
+                    if (!file.type.startsWith('image/')) { alert("⚠️ Rejeitado."); return; }
+                    document.getElementById('micStatus').innerText = "A aplicar Matriz Cinematic Grading (Edge)...";
+                    document.getElementById('micStatus').style.color = "var(--gold-pov)";
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.getElementById('processing-canvas-edge');
+                            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                            let w = img.width, h = img.height;
+                            if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; } 
+                            canvas.width = w; canvas.height = h;
+                            
+                            ctx.drawImage(img, 0, 0, w, h);
+                            const imageData = ctx.getImageData(0, 0, w, h);
+                            const data = imageData.data;
+                            
+                            const contrast = 1.18, brightness = 10;
+                            for (let i = 0; i < data.length; i += 4) {
+                                let r = data[i], g = data[i + 1], b = data[i + 2];
+                                r = ((r / 255 - 0.5) * contrast + 0.5) * 255 + brightness + 22;
+                                g = ((g / 255 - 0.5) * contrast + 0.5) * 255 + brightness + 12;
+                                b = ((b / 255 - 0.5) * contrast + 0.5) * 255 + brightness - 5;
+                                data[i] = Math.min(255, Math.max(0, r));
+                                data[i + 1] = Math.min(255, Math.max(0, g));
+                                data[i + 2] = Math.min(255, Math.max(0, b));
+                            }
+                            ctx.putImageData(imageData, 0, 0);
+                            concluirCapturaVistoria(canvas.toDataURL('image/jpeg', 0.85));
+                            ctx.clearRect(0,0, w, h);
+                            event.target.value = ""; 
+                        }
+                        img.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                };
+
+                document.getElementById('camera-input-edge').addEventListener('change', handleAIProcessing);
+                document.getElementById('gallery-input-edge').addEventListener('change', handleAIProcessing);
+                document.getElementById('btnCapturaEdge').addEventListener('click', () => document.getElementById('camera-input-edge').click());
+                document.getElementById('btnGaleriaEdge').addEventListener('click', () => document.getElementById('gallery-input-edge').click());
+
+                // Botão de Guardar (Com GPS)
+                document.getElementById('guardarBtn').addEventListener('click', function() {
+                    this.style.display = "none"; 
+                    const concluirGuardar = (coordsText) => {
+                        memoriaApp.push({ 
+                            categoria: document.getElementById('selectDivisao').value, 
+                            imagem: tempImagemBase64, 
+                            texto: document.getElementById('visorNota').value.trim(), 
+                            coordenadas: coordsText, 
+                            dataHora: new Date().toLocaleString('pt-PT') 
+                        });
+                        guardarNoCRM(); renderizarInterface(); resetarCameraVisual();
+                        document.getElementById('micStatus').innerText = "Registo acoplado à base de dados.";
+                    };
+                    document.getElementById('micStatus').innerText = "A calcular telemetria GPS...";
+                    if (navigator.geolocation) { 
+                        navigator.geolocation.getCurrentPosition( 
+                            (pos) => concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`), 
+                            (err) => concluirGuardar("Sinal GPS Omitido"), 
+                            { enableHighAccuracy: true, timeout: 5000 } 
+                        );
+                    } else { concluirGuardar("GPS Incompatível."); }
+                });
+
+                // Assinatura Canvas Events
+                const getPos = (e) => { 
+                    const r = DOM.canvasAssinatura.getBoundingClientRect(); 
+                    const cx = e.touches ? e.touches.clientX : e.clientX; 
+                    const cy = e.touches ? e.touches.clientY : e.clientY; 
+                    return { x: cx - r.left, y: cy - r.top }; 
+                };
+                
+                const startDrawing = (e) => { 
+                    if(e.type === 'touchstart') e.preventDefault(); 
+                    assinando=true; const p=getPos(e); DOM.ctxAssinatura.beginPath(); DOM.ctxAssinatura.moveTo(p.x, p.y); 
+                };
+                const draw = (e) => { 
+                    if(e.type === 'touchmove') e.preventDefault(); 
+                    if(assinando){ const p=getPos(e); DOM.ctxAssinatura.lineTo(p.x, p.y); DOM.ctxAssinatura.stroke(); temAssinatura=true; }
+                };
+                const stopDrawing = () => { 
+                    assinando=false; 
+                    if(temAssinatura) { assinaturaSalvaBase64 = DOM.canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } 
+                };
+
+                DOM.canvasAssinatura.addEventListener('mousedown', startDrawing);
+                DOM.canvasAssinatura.addEventListener('mousemove', draw);
+                DOM.canvasAssinatura.addEventListener('mouseup', stopDrawing);
+                DOM.canvasAssinatura.addEventListener('mouseout', stopDrawing);
+                DOM.canvasAssinatura.addEventListener('touchstart', startDrawing, {passive:false});
+                DOM.canvasAssinatura.addEventListener('touchmove', draw, {passive:false});
+                DOM.canvasAssinatura.addEventListener('touchend', stopDrawing);
+
+                document.getElementById('btnLimparCanvas').addEventListener('click', () => { 
+                    DOM.ctxAssinatura.clearRect(0, 0, DOM.canvasAssinatura.width, DOM.canvasAssinatura.height); 
+                    temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); 
+                });
+
+                // Delegação de Smart Tags
+                document.getElementById('painelTags').addEventListener('click', (e) => {
+                    if(e.target.classList.contains('smart-tag')) {
+                        const t = e.target.dataset.tag;
+                        const vNota = document.getElementById('visorNota');
+                        let txt = vNota.value.trim(); 
+                        vNota.value = txt + (txt.length > 0 ? '\n' : '') + '✦ ' + t;
+                    }
+                });
+
+                // Web Speech API Isolado
+                const ativarDitado = (inputId, btnId) => {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (!SpeechRecognition) { alert("Motor de ditado não suportado neste browser."); return; }
+                    try {
+                        const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
+                        const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
+                        rec.onstart = () => btn.classList.add('recording');
+                        rec.onresult = (e) => { 
+                            let tEx = target.value.trim(); let novo = e.results.transcript.trim(); 
+                            target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+                            if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
+                            if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
+                        };
+                        rec.onend = () => btn.classList.remove('recording'); 
+                        rec.start();
+                    } catch(err) { console.warn("Erro ao instanciar SpeechAPI", err); }
+                };
+                
+                document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
+                document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
+
+                // PDF Generate Bind
+                document.getElementById('gerarPdfBtn').addEventListener('click', function() { gerarPDF(this); });
+
+                // Initialize Upload Listeners
+                setupDualDocUpload('fileLogo_gal', 'fileLogo_cam', 'lblText_logo', 'wrap_logo', 'logo', 'Logótipo Oficial');
+                setupDualDocUpload('fileCCF_gal', 'fileCCF_cam', 'lblText_ccF', 'wrap_ccF', 'ccF', 'ID (Frente)');
+                setupDualDocUpload('fileCCV_gal', 'fileCCV_cam', 'lblText_ccV', 'wrap_ccV', 'ccV', 'ID (Verso)');
+                setupDualDocUpload('fileCaderneta_gal', 'fileCaderneta_cam', 'lblText_caderneta', 'wrap_caderneta', 'caderneta', 'Caderneta Predial');
+                setupDualDocUpload('fileRegisto_gal', 'fileRegisto_cam', 'lblText_registo', 'wrap_registo', 'registo', 'Registo Predial');
+                setupDualDocUpload('fileLicenca_gal', 'fileLicenca_cam', 'lblText_licenca', 'wrap_licenca', 'licenca', 'Licença de Utilização');
+                setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
+                setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
+            };
+
+            // Init Pipeline
+            return {
+                init: () => {
+                    loadData();
+                    renderizarDashboard();
+                    bindEvents();
+                }
+            };
+        })();
+
+        // Boot da Aplicação Central
+        document.addEventListener("DOMContentLoaded", POVApp.init);
     </script>
 </body>
 </html>
