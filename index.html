@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Neural CRM V33.4</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>POV App - Neural CRM V34 (Raio-X Edition)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            var errBox = document.createElement('div');
+            errBox.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#d30000;color:#fff;padding:15px;z-index:999999;font-family:monospace;font-size:11px;font-weight:bold;word-wrap:break-word;border-bottom:3px solid #ffcc00;';
+            errBox.innerHTML = '🚨 CRASH DETETADO NO DISPOSITIVO<br><br>ERRO: ' + msg + '<br>LINHA: ' + line;
+            document.body.appendChild(errBox);
+            return false;
+        };
+    </script>
+
     <style>
         :root {
             --bg-deep: #000000;
@@ -288,28 +299,37 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // ==========================================
-        // GESTÃO DE ESTADO & DIAGNÓSTICO
-        // ==========================================
-        let crmData = [];
+        // DECLARAÇÃO ABSOLUTA (LIVRE DE ES6 CRASHES)
+        var crmData = [];
         try {
-            let cache = localStorage.getItem('pov_crm_v33_master');
-            if (cache) { crmData = JSON.parse(cache); if (!Array.isArray(crmData)) crmData = []; }
-        } catch(e) { console.error("Erro Cache:", e); crmData = []; }
+            var cache = localStorage.getItem('pov_crm_v34');
+            if (cache) { 
+                crmData = JSON.parse(cache); 
+                if (!Array.isArray(crmData)) { crmData = []; }
+            }
+        } catch(e) { 
+            crmData = []; 
+        }
         
-        let activeIndex = -1; 
-        let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
-        let tempImagemBase64 = "";
-        let assinando = false; let temAssinatura = false; 
+        var activeIndex = -1; 
+        var metadados = {}; var docsApp = {}; var memoriaApp = []; var assinaturaSalvaBase64 = "";
+        var tempImagemBase64 = "";
+        var assinando = false; var temAssinatura = false; 
 
-        const uiDashboard = document.getElementById('crm-dashboard');
-        const uiEditor = document.getElementById('app-ui-container');
-        const listaCRM = document.getElementById('lista-crm');
-        const canvasAssinatura = document.getElementById('canvasAssinatura'); 
-        const ctxAssinatura = canvasAssinatura.getContext('2d');
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var uiDashboard = document.getElementById('crm-dashboard');
+        var uiEditor = document.getElementById('app-ui-container');
+        var listaCRM = document.getElementById('lista-crm');
+        var canvasAssinatura = document.getElementById('canvasAssinatura'); 
+        
+        // PROTEÇÃO DE CANVAS NATIVO
+        var ctxAssinatura = null;
+        if (canvasAssinatura) {
+            try { ctxAssinatura = canvasAssinatura.getContext('2d'); } catch(e) { }
+        }
 
-        const docKeys = [
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        var docKeys = [
             { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
             { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'ID (Frente)' },
             { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'ID (Verso)' },
@@ -320,49 +340,65 @@
             { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
         ];
 
-        const mapMeta = [
+        var mapMeta = [
             { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
             { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
             { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
         ];
 
-        // ==========================================
-        // COMANDOS DE ROTEAMENTO (NAVEGAÇÃO HARDCODED)
-        // ==========================================
-        
+        // FUNÇÕES GLOBAIS DE COMANDO
         window.iniciarNovoMandato = function() {
-            try {
-                crmData.push({ id: new Date().getTime(), titulo: "Rascunho de Target...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
-                abrirPasta(crmData.length - 1);
-            } catch (erro) {
-                alert("ERRO DE SISTEMA NO CLIQUE: " + erro.message);
-            }
+            if(!crmData) { crmData = []; }
+            crmData.push({ id: new Date().getTime(), titulo: "Rascunho de Target...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
+            abrirPasta(crmData.length - 1);
         };
 
         window.fecharEVoltar = function() {
-            try {
-                guardarNoCRM(); 
-                uiEditor.style.display = "none"; 
-                uiDashboard.style.display = "block"; 
-                window.scrollTo(0,0);
-            } catch (erro) {
-                alert("ERRO AO VOLTAR: " + erro.message);
-            }
+            guardarNoCRM(); 
+            uiEditor.style.display = "none"; 
+            uiDashboard.style.display = "block"; 
+            window.scrollTo(0,0);
         };
 
         window.limparSistema = function() {
-            if(confirm("DIRETIVA C-SUITE: Esta ação destruirá todo o pipeline visual e legal permanentemente. Deseja libertar a memória e proceder?")) {
-                localStorage.removeItem('pov_crm_v33_master'); crmData = []; renderizarDashboard();
+            if(confirm("Deseja apagar todos os clientes para libertar memória?")) {
+                localStorage.removeItem('pov_crm_v34'); 
+                crmData = []; 
+                renderizarDashboard();
             }
         };
 
         window.abrirPastaAExistente = function(index) {
-            try { abrirPasta(index); } catch(e) { alert("ERRO AO ABRIR PASTA: " + e.message); }
+            abrirPasta(index);
         };
 
-        // ==========================================
-        // LÓGICA DE DADOS
-        // ==========================================
+        window.limparQuadro = function() {
+            if(ctxAssinatura) {
+                ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); 
+            }
+            temAssinatura = false; 
+            assinaturaSalvaBase64 = ""; 
+            guardarNoCRM();
+        }
+
+        window.adicionarTag = function(textoTag) { 
+            var textoAtual = document.getElementById('visorNota').value.trim(); 
+            var novaLinha = textoAtual.length > 0 ? '\n' : ''; 
+            document.getElementById('visorNota').value = textoAtual + novaLinha + '✦ ' + textoTag; 
+        }
+
+        window.descarregarFoto = function(indexFoto) {
+            if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
+            var item = memoriaApp[indexFoto]; 
+            var a = document.createElement('a'); 
+            a.href = item.imagem;
+            a.download = 'POV_Render_' + item.categoria.replace(/[^a-zA-Z0-9]/g, '_') + '_' + (indexFoto+1) + '.jpg';
+            document.body.appendChild(a); 
+            a.click(); 
+            document.body.removeChild(a);
+        };
+
+        // LÓGICA DE NEGÓCIO
         function guardarNoCRM() {
             if (activeIndex === -1) return;
             crmData[activeIndex] = {
@@ -372,28 +408,25 @@
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
             
-            try { localStorage.setItem('pov_crm_v33_master', JSON.stringify(crmData)); } 
-            catch (error) { alert("⚠️ ALERTA: Memória do telemóvel cheia. Exporte o PDF e formate a base de dados."); }
+            try { 
+                localStorage.setItem('pov_crm_v34', JSON.stringify(crmData)); 
+            } catch (error) { 
+                alert("Memória do telemóvel cheia. Limpe o sistema."); 
+            }
             renderizarDashboard();
         }
 
         function renderizarDashboard() {
-            try {
-                listaCRM.innerHTML = "";
-                if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:11px; text-transform: uppercase;'>Sem registos ativos no pipeline.</p>"; return; }
-                
-                crmData.forEach((pasta, index) => {
-                    const numFotos = pasta.fotos ? pasta.fotos.length : 0;
-                    listaCRM.innerHTML += `
-                        <div class="crm-item" onclick="abrirPastaAExistente(${index})">
-                            <div>
-                                <div class="crm-title">${pasta.titulo}</div>
-                                <div class="crm-ref">${pasta.data} | 📷 ${numFotos} Ativos Visuais</div>
-                            </div>
-                            <div style="color:var(--gold-pov); font-size:16px;">➔</div>
-                        </div>`;
-                });
-            } catch(e) { alert("ERRO DASHBOARD: " + e.message); }
+            listaCRM.innerHTML = "";
+            if(crmData.length === 0) { 
+                listaCRM.innerHTML = "<p style='color:#666; font-size:11px; text-transform: uppercase;'>Sem registos ativos.</p>"; 
+                return; 
+            }
+            
+            crmData.forEach(function(pasta, index) {
+                var numFotos = pasta.fotos ? pasta.fotos.length : 0;
+                listaCRM.innerHTML += '<div class="crm-item" onclick="abrirPastaAExistente(' + index + ')"><div><div class="crm-title">' + pasta.titulo + '</div><div class="crm-ref">' + pasta.data + ' | 📷 ' + numFotos + ' Imagens</div></div><div style="color:var(--gold-pov); font-size:16px;">➔</div></div>';
+            });
         }
 
         function resetarCameraVisual() {
@@ -404,12 +437,12 @@
             document.getElementById('painelTags').style.display = "none";
             document.getElementById('guardarBtn').style.display = "none";
             document.getElementById('visorNota').value = "";
-            document.getElementById('micStatus').innerText = "Aguardando Sensor Ótico...";
-            document.getElementById('micStatus').style.color = "var(--text-muted)";
+            document.getElementById('micStatus').innerText = "Aguardando Sensor...";
         }
 
         function inicializarCanvas() { 
-            const r = canvasAssinatura.parentElement.getBoundingClientRect(); 
+            if(!ctxAssinatura || !canvasAssinatura) return;
+            var r = canvasAssinatura.parentElement.getBoundingClientRect(); 
             canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; 
             canvasAssinatura.height = 150; 
             ctxAssinatura.lineWidth = 2; 
@@ -417,23 +450,16 @@
             ctxAssinatura.strokeStyle = '#000'; 
         }
 
-        window.limparQuadro = function() {
-            ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); 
-            temAssinatura = false; 
-            assinaturaSalvaBase64 = ""; 
-            guardarNoCRM();
-        }
-
         function abrirPasta(index) {
             activeIndex = index;
-            const pasta = crmData[index];
+            var pasta = crmData[index];
             metadados = pasta.meta || {}; docsApp = pasta.docs || {}; memoriaApp = pasta.fotos || []; assinaturaSalvaBase64 = pasta.assinatura || "";
             
-            mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
+            mapMeta.forEach(function(b) { var el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
             
-            docKeys.forEach(d => {
-                const txtEl = document.getElementById(d.idText);
-                const wrapEl = document.getElementById(d.idWrap);
+            docKeys.forEach(function(d) {
+                var txtEl = document.getElementById(d.idText);
+                var wrapEl = document.getElementById(d.idWrap);
                 if(docsApp[d.key]) {
                     txtEl.innerText = "✅ " + d.txt;
                     txtEl.classList.add('loaded'); wrapEl.classList.add('loaded');
@@ -450,44 +476,58 @@
             uiEditor.style.display = "block"; 
             window.scrollTo(0,0);
 
-            setTimeout(() => { 
-                inicializarCanvas(); 
-                if(assinaturaSalvaBase64 !== "") { 
-                    const img = new Image(); 
-                    img.onload = () => ctxAssinatura.drawImage(img, 0, 0); 
-                    img.src = assinaturaSalvaBase64; 
-                    temAssinatura = true; 
-                } else { temAssinatura = false; }
+            setTimeout(function() { 
+                try {
+                    inicializarCanvas(); 
+                    if(assinaturaSalvaBase64 !== "" && ctxAssinatura) { 
+                        var img = new Image(); 
+                        img.onload = function() { ctxAssinatura.drawImage(img, 0, 0); };
+                        img.src = assinaturaSalvaBase64; 
+                        temAssinatura = true; 
+                    } else { 
+                        temAssinatura = false; 
+                    }
+                } catch(e) {}
             }, 150);
         }
 
-        // BINDING DOS INPUTS DE TEXTO
-        mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
+        mapMeta.forEach(function(b) { 
+            var el = document.getElementById(b.id); 
+            if(el) { 
+                el.addEventListener('input', function(e) { 
+                    metadados[b.key] = e.target.value; 
+                    guardarNoCRM(); 
+                }); 
+            }
+        });
 
-        // UPLOAD ENGINE
         function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
-            const handleFile = function(e) {
-                const file = e.target.files; if(!file) return;
-                if (!file.type.startsWith('image/')) { alert("⚠️ Entrada rejeitada. Formato não visual."); e.target.value = ""; return; }
+            var handleFile = function(e) {
+                var file = e.target.files; if(!file) return;
+                if (file.type.indexOf('image/') !== 0) { alert("Rejeitado."); e.target.value = ""; return; }
 
-                const reader = new FileReader();
+                var reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = new Image();
+                    var img = new Image();
                     img.onload = function() {
-                        const canvas = document.createElement('canvas'); 
-                        let maxW = docKey === 'logo' ? 400 : 800; 
-                        let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-                        canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        var canvas = document.createElement('canvas'); 
+                        var maxW = docKey === 'logo' ? 400 : 800; 
+                        var w = img.width, h = img.height; 
+                        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                        canvas.width = w; canvas.height = h; 
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.8); 
                         guardarNoCRM();
                         document.getElementById(lblTextId).innerText = "✅ " + originalText;
-                        document.getElementById(lblTextId).classList.add('loaded'); document.getElementById(wrapId).classList.add('loaded');
+                        document.getElementById(lblTextId).classList.add('loaded'); 
+                        document.getElementById(wrapId).classList.add('loaded');
                     }
                     img.src = event.target.result;
                 }
                 reader.readAsDataURL(file);
             };
-            document.getElementById(idGal).addEventListener('change', handleFile); document.getElementById(idCam).addEventListener('change', handleFile);
+            document.getElementById(idGal).addEventListener('change', handleFile); 
+            document.getElementById(idCam).addEventListener('change', handleFile);
         }
 
         setupDualDocUpload('fileLogo_gal', 'fileLogo_cam', 'lblText_logo', 'wrap_logo', 'logo', 'Logótipo Oficial');
@@ -499,39 +539,39 @@
         setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
         setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
 
-        // ==========================================
-        // MOTOR POV CINEMATIC GRADING (EDGE AI)
-        // ==========================================
-        const handleAIProcessing = function(event) {
-            const file = event.target.files; if(!file) return;
-            if (!file.type.startsWith('image/')) { alert("⚠️ Rejeitado."); return; }
+        var handleAIProcessing = function(event) {
+            var file = event.target.files; if(!file) return;
+            if (file.type.indexOf('image/') !== 0) return;
 
-            document.getElementById('micStatus').innerText = "A aplicar Matriz Cinematic Grading (Edge)...";
-            document.getElementById('micStatus').style.color = "var(--gold-pov)";
+            document.getElementById('micStatus').innerText = "A aplicar Filtro Edge AI...";
 
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image();
+                var img = new Image();
                 img.onload = function() {
-                    const canvas = document.getElementById('processing-canvas-edge');
-                    const ctx = canvas.getContext('2d');
-                    let w = img.width, h = img.height;
+                    var canvas = document.getElementById('processing-canvas-edge');
+                    var ctx = canvas.getContext('2d');
+                    var w = img.width, h = img.height;
                     if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; } 
                     canvas.width = w; canvas.height = h;
                     ctx.drawImage(img, 0, 0, w, h);
                     
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-                    const contrast = 1.18; const brightness = 10; 
-                    for (let i = 0; i < data.length; i += 4) {
-                        let r = data[i], g = data[i + 1], b = data[i + 2];
-                        r = ((r / 255 - 0.5) * contrast + 0.5) * 255; g = ((g / 255 - 0.5) * contrast + 0.5) * 255; b = ((b / 255 - 0.5) * contrast + 0.5) * 255;
-                        r += brightness + 22; g += brightness + 12; b += brightness - 5; 
-                        data[i] = r > 255 ? 255 : (r < 0 ? 0 : r); data[i + 1] = g > 255 ? 255 : (g < 0 ? 0 : g); data[i + 2] = b > 255 ? 255 : (b < 0 ? 0 : b);
-                    }
-                    ctx.putImageData(imageData, 0, 0);
+                    try {
+                        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        var data = imageData.data;
+                        var contrast = 1.18; var brightness = 10; 
+                        for (var i = 0; i < data.length; i += 4) {
+                            var r = data[i], g = data[i + 1], b = data[i + 2];
+                            r = ((r / 255 - 0.5) * contrast + 0.5) * 255; g = ((g / 255 - 0.5) * contrast + 0.5) * 255; b = ((b / 255 - 0.5) * contrast + 0.5) * 255;
+                            r += brightness + 22; g += brightness + 12; b += brightness - 5; 
+                            data[i] = r > 255 ? 255 : (r < 0 ? 0 : r); data[i + 1] = g > 255 ? 255 : (g < 0 ? 0 : g); data[i + 2] = b > 255 ? 255 : (b < 0 ? 0 : b);
+                        }
+                        ctx.putImageData(imageData, 0, 0);
+                    } catch(err) { }
+                    
                     concluirCapturaVistoria(canvas.toDataURL('image/jpeg', 0.85));
-                    ctx.clearRect(0,0, canvas.width, canvas.height); event.target.value = ""; 
+                    ctx.clearRect(0,0, canvas.width, canvas.height); 
+                    event.target.value = ""; 
                 }
                 img.src = e.target.result;
             }
@@ -542,175 +582,121 @@
         document.getElementById('gallery-input-edge').addEventListener('change', handleAIProcessing);
 
         function concluirCapturaVistoria(base64Image) {
-            tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
-            document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
-            document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
-            document.getElementById('micStatus').innerText = "Processamento Edge Concluído. Extraia a metadata."; document.getElementById('micStatus').style.color = "var(--text-muted)";
+            tempImagemBase64 = base64Image; 
+            document.getElementById('previewImagem').src = tempImagemBase64;
+            document.getElementById('previewImagem').style.display = "block"; 
+            document.getElementById('painelDitado').style.display = "flex";
+            document.getElementById('painelTags').style.display = "flex"; 
+            document.getElementById('visorNota').value = "";
+            document.getElementById('micStatus').innerText = "Sucesso. Preencha as tags."; 
             document.getElementById('guardarBtn').style.display = "block";
         }
 
-        window.adicionarTag = function(textoTag) { let textoAtual = document.getElementById('visorNota').value.trim(); let novaLinha = textoAtual.length > 0 ? '\n' : ''; document.getElementById('visorNota').value = textoAtual + novaLinha + '✦ ' + textoTag; }
-
-        window.descarregarFoto = function(indexFoto) {
-            if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
-            const item = memoriaApp[indexFoto]; const a = document.createElement('a'); a.href = item.imagem;
-            a.download = `POV_Render_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${indexFoto+1}.jpg`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        };
-
         function renderizarInterface() {
-            const logUi = document.getElementById('log-ui');
-            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos nesta pasta."; return; }
+            var logUi = document.getElementById('log-ui');
+            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos."; return; }
             logUi.innerHTML = "";
-            memoriaApp.forEach((item, index) => {
-                let txt = item.texto.length > 0 ? item.texto : "Sem notas estruturais.";
-                logUi.innerHTML += `
-                <div class="foto-item-ui">
-                    <div class="ui-img-box" style="background-image: url('${item.imagem}');"></div>
-                    <div style="flex:1;">
-                        <div class="badge-categoria">${item.categoria}</div><p>${txt}</p>
-                        <button class="btn-dl-img" onclick="descarregarFoto(${index})">⬇ Descarregar Mídia Valorizada</button>
-                    </div>
-                </div>`;
+            memoriaApp.forEach(function(item, index) {
+                var txt = item.texto.length > 0 ? item.texto : "Sem notas.";
+                logUi.innerHTML += '<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url(\'' + item.imagem + '\');"></div><div style="flex:1;"><div class="badge-categoria">' + item.categoria + '</div><p>' + txt + '</p><button class="btn-dl-img" onclick="descarregarFoto(' + index + ')">⬇ Descarregar Mídia</button></div></div>';
             });
         }
 
         document.getElementById('guardarBtn').addEventListener('click', function() {
             this.style.display = "none"; 
-            const concluirGuardar = (coordsText) => {
+            var concluirGuardar = function(coordsText) {
                 memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                guardarNoCRM(); renderizarInterface(); resetarCameraVisual(); document.getElementById('micStatus').innerText = "Registo acoplado à base de dados.";
+                guardarNoCRM(); renderizarInterface(); resetarCameraVisual(); document.getElementById('micStatus').innerText = "Guardado.";
             };
-            document.getElementById('micStatus').innerText = "A calcular telemetria GPS...";
-            if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( (pos) => { concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`); }, (err) => { concluirGuardar("Sinal GPS Omitido"); }, { enableHighAccuracy: true, timeout: 5000 } );
+            document.getElementById('micStatus').innerText = "A calcular GPS...";
+            if (navigator.geolocation) { 
+                navigator.geolocation.getCurrentPosition( 
+                    function(pos) { concluirGuardar('LAT: ' + pos.coords.latitude.toFixed(5) + ' | LON: ' + pos.coords.longitude.toFixed(5)); }, 
+                    function(err) { concluirGuardar("GPS Omitido"); }, 
+                    { enableHighAccuracy: true, timeout: 5000 } 
+                );
             } else { concluirGuardar("GPS Incompatível."); }
         });
 
-        // ==========================================
-        // ASSINATURA E DITADO
-        // ==========================================
-        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches.clientX : e.clientX; const cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
-        canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
-        canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
-        canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
-        canvasAssinatura.addEventListener('touchstart', (e)=>{ e.preventDefault(); assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
-        canvasAssinatura.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
-        canvasAssinatura.addEventListener('touchend', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+        if(canvasAssinatura && ctxAssinatura) {
+            function getPos(e) { var r = canvasAssinatura.getBoundingClientRect(); var cx = e.touches ? e.touches.clientX : e.clientX; var cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+            canvasAssinatura.addEventListener('mousedown', function(e){ assinando=true; var p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
+            canvasAssinatura.addEventListener('mousemove', function(e){ if(assinando){ var p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
+            canvasAssinatura.addEventListener('mouseup', function(){ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+            canvasAssinatura.addEventListener('touchstart', function(e){ e.preventDefault(); assinando=true; var p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
+            canvasAssinatura.addEventListener('touchmove', function(e){ e.preventDefault(); if(assinando){ var p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
+            canvasAssinatura.addEventListener('touchend', function(){ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+        }
 
         function ativarDitado(inputId, btnId) {
             if (!SpeechRecognition) return;
-            const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
-            const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
-            rec.onstart = () => { btn.classList.add('recording'); };
-            rec.onresult = (e) => { 
-                let tEx = target.value.trim(); let novo = e.results[e.resultIndex].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+            var rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
+            var target = document.getElementById(inputId); var btn = document.getElementById(btnId);
+            rec.onstart = function() { btn.classList.add('recording'); };
+            rec.onresult = function(e) { 
+                var tEx = target.value.trim(); var novo = e.results[e.resultIndex].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
                 if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
                 if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
             };
-            rec.onend = () => { btn.classList.remove('recording'); }; try { rec.start(); } catch(e) {}
+            rec.onend = function() { btn.classList.remove('recording'); }; try { rec.start(); } catch(e) {}
         }
-        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
-        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
+        document.getElementById('micLocal').addEventListener('click', function() { ativarDitado('inputLocal', 'micLocal'); });
+        document.getElementById('btnIconeMic').addEventListener('click', function() { ativarDitado('visorNota', 'btnIconeMic'); });
 
-        // ==========================================
-        // GERAÇÃO PDF
-        // ==========================================
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
-            const btn = this; btn.innerText = "⏳ A COMPILAR PITCH DECK... (Aguarde)"; btn.disabled = true;
+            var btn = this; btn.innerText = "⏳ A COMPILAR PITCH DECK..."; btn.disabled = true;
 
-            let nomeFicheiroFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
-            if (nomeFicheiroFinal === "") nomeFicheiroFinal = `POV_PitchDeck_${metadados.ref || new Date().getTime()}.pdf`;
-            if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
+            var nomeFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
+            if (nomeFinal === "") nomeFinal = 'POV_PitchDeck_' + (metadados.ref || new Date().getTime()) + '.pdf';
+            if (nomeFinal.toLowerCase().indexOf('.pdf') === -1) nomeFinal += '.pdf';
 
-            const pdfZone = document.getElementById('pdf-render-zone'); pdfZone.style.display = 'block';
+            var pdfZone = document.getElementById('pdf-render-zone'); pdfZone.style.display = 'block';
 
-            let htmlString = `
-                <div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">
-                    <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
-                        <tr>
-                            <td style="width: 50%; vertical-align: middle;">
-                                ${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">PITCH DECK DE INVESTIMENTO</h1>`}
-                            </td>
-                            <td style="width: 50%; text-align: right; vertical-align: middle;">
-                                <div style="font-weight: 700; font-size: 16px; color: #111;">${metadados.agencia || "Entidade Não Definida"}</div>
-                                <div style="font-size: 10px; color: #666; margin-top: 4px;">REGISTO OFICIAL: ${metadados.ami || "N/A"}</div>
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; margin-bottom: 25px; table-layout: fixed; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 50%; vertical-align: top; padding-right: 10px;">
-                                <div style="background: #fafafa; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
-                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Telemetria do Ativo</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#111;">Referência Interna:</b> ${metadados.ref || "N/A"}</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#111;">Localização Premium:</b> ${metadados.local || "N/A"}</div>
-                                    <div style="font-size: 12px;"><b style="color:#111;">Target de Posicionamento:</b> ${metadados.preco || "Sob Consulta"}</div>
-                                </div>
-                            </td>
-                            <td style="width: 50%; vertical-align: top; padding-left: 10px;">
-                                 <div style="background: #fafafa; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
-                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Entidade Proprietária</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#111;">Titular:</b> ${metadados.nomeProp || "N/A"}</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#111;">Contacto Direto:</b> ${metadados.contactoProp || "N/A"}</div>
-                                    <div style="font-size: 12px;"><b style="color:#111;">Morada Fiscal:</b> ${metadados.moradaProp || "N/A"}</div>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <div style="margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;">
-                        <div style="font-weight: 700; text-transform: uppercase; font-size: 11px; margin-bottom: 12px; color: #111; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Auditoria de Conformidade Legal</div>
-                        <table style="width: 100%; font-size: 11px; color: #444;">
-                            <tr><td style="width: 50%; padding: 4px 0;">Cartão de Cidadão: <b style="color:${docsApp.ccF ? '#27ae60' : '#d35400'};">${docsApp.ccF ? 'Validado' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Caderneta Predial: <b style="color:${docsApp.caderneta ? '#27ae60' : '#d35400'};">${docsApp.caderneta ? 'Validado' : 'Pendente'}</b></td></tr>
-                            <tr><td style="width: 50%; padding: 4px 0;">Registo Predial: <b style="color:${docsApp.registo ? '#27ae60' : '#d35400'};">${docsApp.registo ? 'Validado' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Licença de Utilização: <b style="color:${docsApp.licenca ? '#27ae60' : '#d35400'};">${docsApp.licenca ? 'Validado' : 'Pendente'}</b></td></tr>
-                            <tr><td style="width: 50%; padding: 4px 0;">Certificado Energético: <b style="color:${docsApp.certificado ? '#27ae60' : '#d35400'};">${docsApp.certificado ? 'Validado' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Outros Documentos: <b style="color:${docsApp.outros ? '#27ae60' : '#888'};">${docsApp.outros ? 'Anexado' : 'N/A'}</b></td></tr>
-                        </table>
-                    </div><div style="page-break-before: auto;"></div>`;
+            var logoMarkup = docsApp.logo ? '<img src="' + docsApp.logo + '" style="max-height:50px; max-width:250px;">' : '<h1 style="margin:0; font-family: \'Playfair Display\', serif; font-size:24px; color:#111;">PITCH DECK</h1>';
+            var ccfColor = docsApp.ccF ? '#27ae60' : '#d35400'; var ccfText = docsApp.ccF ? 'Validado' : 'Pendente';
+            var cadColor = docsApp.caderneta ? '#27ae60' : '#d35400'; var cadText = docsApp.caderneta ? 'Validado' : 'Pendente';
+            var regColor = docsApp.registo ? '#27ae60' : '#d35400'; var regText = docsApp.registo ? 'Validado' : 'Pendente';
+            var licColor = docsApp.licenca ? '#27ae60' : '#d35400'; var licText = docsApp.licenca ? 'Validado' : 'Pendente';
+            var certColor = docsApp.certificado ? '#27ae60' : '#d35400'; var certText = docsApp.certificado ? 'Validado' : 'Pendente';
 
-            if(memoriaApp.length > 0) { htmlString += `<div style="font-weight: 700; font-family: 'Playfair Display', serif; text-transform: uppercase; font-size: 16px; margin-bottom: 20px; color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 8px;">Mapeamento Visual & Arquitetónico</div>`; }
-            memoriaApp.forEach((item, index) => {
-                let textoFormatado = item.texto.replace(/\n/g, '<br>'); if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem dados estruturais registados.</span>";
-                htmlString += `
-                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
-                    <tr><td style="width: 50%; vertical-align: top; padding: 0;"><div style="width: 100%; height: 200px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div></td><td style="width: 4%; padding: 0;"></td>
-                        <td style="width: 46%; vertical-align: top; padding: 0; padding-top: 5px; box-sizing: border-box;">
-                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; margin-bottom: 8px; display: block;"><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span><div style="clear: both;"></div></div>
-                            <div style="font-family: 'Playfair Display', serif; font-size: 12px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; width: 100%; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word;">${textoFormatado}</div>
-                            <div style="margin-top: 10px; font-size: 8px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 5px;">⏳ DATA: ${item.dataHora}<br>🛰️ COORDENADAS: ${item.coordenadas}</div>
-                        </td></tr></table>`;
+            var html = '<div style="font-family:\'Montserrat\',sans-serif;color:#000;width:100%;box-sizing:border-box;margin:0;">';
+            html += '<table style="width:100%;border-bottom:2px solid #d4af37;padding-bottom:15px;margin-bottom:20px;"><tr><td style="width:50%;vertical-align:middle;">' + logoMarkup + '</td>';
+            html += '<td style="width:50%;text-align:right;vertical-align:middle;"><div style="font-weight:700;font-size:16px;color:#111;">' + (metadados.agencia || "N/A") + '</div><div style="font-size:10px;color:#666;margin-top:4px;">AMI: ' + (metadados.ami || "N/A") + '</div></td></tr></table>';
+            
+            html += '<table style="width:100%;margin-bottom:25px;table-layout:fixed;border-collapse:collapse;"><tr>';
+            html += '<td style="width:50%;vertical-align:top;padding-right:10px;"><div style="background:#fafafa;padding:15px;border:1px solid #eee;border-left:3px solid #d4af37;min-height:110px;"><div style="font-weight:700;margin-bottom:10px;text-transform:uppercase;font-size:10px;color:#888;">Telemetria</div><div style="font-size:12px;margin-bottom:6px;"><b style="color:#111;">REF:</b> ' + (metadados.ref || "N/A") + '</div><div style="font-size:12px;margin-bottom:6px;"><b style="color:#111;">Local:</b> ' + (metadados.local || "N/A") + '</div><div style="font-size:12px;"><b style="color:#111;">Target:</b> ' + (metadados.preco || "N/A") + '</div></div></td>';
+            html += '<td style="width:50%;vertical-align:top;padding-left:10px;"><div style="background:#fafafa;padding:15px;border:1px solid #eee;border-left:3px solid #d4af37;min-height:110px;"><div style="font-weight:700;margin-bottom:10px;text-transform:uppercase;font-size:10px;color:#888;">Proprietário</div><div style="font-size:12px;margin-bottom:6px;"><b style="color:#111;">Nome:</b> ' + (metadados.nomeProp || "N/A") + '</div><div style="font-size:12px;margin-bottom:6px;"><b style="color:#111;">Contacto:</b> ' + (metadados.contactoProp || "N/A") + '</div><div style="font-size:12px;"><b style="color:#111;">Morada:</b> ' + (metadados.moradaProp || "N/A") + '</div></div></td></tr></table>';
+            
+            html += '<div style="margin-bottom:30px;border:1px solid #e0e0e0;padding:15px;background:#fff;"><div style="font-weight:700;text-transform:uppercase;font-size:11px;margin-bottom:12px;color:#111;border-bottom:1px solid #ccc;padding-bottom:5px;">Conformidade Legal</div>';
+            html += '<table style="width:100%;font-size:11px;color:#444;"><tr><td style="width:50%;padding:4px 0;">ID: <b style="color:' + ccfColor + ';">' + ccfText + '</b></td><td style="width:50%;padding:4px 0;">Caderneta: <b style="color:' + cadColor + ';">' + cadText + '</b></td></tr><tr><td style="width:50%;padding:4px 0;">Registo: <b style="color:' + regColor + ';">' + regText + '</b></td><td style="width:50%;padding:4px 0;">Licença: <b style="color:' + licColor + ';">' + licText + '</b></td></tr><tr><td style="width:50%;padding:4px 0;">Cert. Energia: <b style="color:' + certColor + ';">' + certText + '</b></td><td style="width:50%;padding:4px 0;">Outros: <b style="color:' + (docsApp.outros ? '#27ae60' : '#888') + ';">' + (docsApp.outros ? 'Anexado' : 'N/A') + '</b></td></tr></table></div><div style="page-break-before:auto;"></div>';
+
+            if(memoriaApp.length > 0) { html += '<div style="font-weight:700;font-family:\'Playfair Display\',serif;text-transform:uppercase;font-size:16px;margin-bottom:20px;color:#d4af37;border-bottom:1px solid #d4af37;padding-bottom:8px;">Mapeamento Visual</div>'; }
+            
+            memoriaApp.forEach(function(item, index) {
+                var txtForm = item.texto.replace(/\n/g, '<br>'); 
+                if(txtForm === "") txtForm = "<span style='color:#999;font-style:italic;'>Sem notas.</span>";
+                html += '<table style="width:100%;table-layout:fixed;border-collapse:collapse;page-break-inside:avoid;margin-bottom:25px;border-bottom:1px solid #f0f0f0;padding-bottom:15px;"><tr><td style="width:50%;vertical-align:top;padding:0;"><div style="width:100%;height:200px;border:1px solid #ddd;background-color:#ececec;background-image:url(\'' + item.imagem + '\');background-size:cover;background-position:center;"></div></td><td style="width:4%;padding:0;"></td><td style="width:46%;vertical-align:top;padding:0;padding-top:5px;box-sizing:border-box;"><div style="border-bottom:1px solid #e0e0e0;padding-bottom:5px;margin-bottom:8px;display:block;"><span style="font-family:\'Montserrat\',sans-serif;font-size:10px;font-weight:600;color:#d4af37;text-transform:uppercase;letter-spacing:2px;float:left;">' + item.categoria + '</span><span style="font-family:\'Montserrat\',sans-serif;font-size:10px;color:#999;float:right;">REF. 0' + (index + 1) + '</span><div style="clear:both;"></div></div><div style="font-family:\'Playfair Display\',serif;font-size:12px;color:#222;line-height:1.6;margin:0;min-height:100px;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;">' + txtForm + '</div><div style="margin-top:10px;font-size:8px;color:#888;font-family:monospace;border-top:1px dotted #ccc;padding-top:5px;">' + item.dataHora + '<br>' + item.coordenadas + '</div></td></tr></table>';
             });
 
-            if (temAssinatura && assinaturaSalvaBase64 !== "") { htmlString += `<div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;"><img src="${assinaturaSalvaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;"><div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Aprovação Executiva - Titular do Ativo</div></div>`; }
-            let fotosAnexosHTML = ""; const dictAnexos = { 'ccF': 'ID Corporativo (Frente)', 'ccV': 'ID Corporativo (Verso)', 'caderneta': 'Certidão Predial', 'registo': 'Registo Predial', 'licenca': 'Licença Camarária', 'certificado': 'Eficiência Energética', 'outros': 'Anexos Suplementares' };
-            for (const [key, label] of Object.entries(dictAnexos)) { if(docsApp[key]) { fotosAnexosHTML += `<div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;"><div style="font-weight: 700; font-size: 12px; color: #111; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #d4af37; padding-bottom: 5px; display: inline-block;">📄 Anexo Oficial: ${label}</div><img src="${docsApp[key]}" style="max-width: 100%; max-height: 600px; display: block; margin: 0 auto;"></div>`; } }
-            if(fotosAnexosHTML !== "") { htmlString += `<div style="page-break-before: always; padding-top: 20px;"></div><div style="font-weight: 700; font-family: 'Playfair Display', serif; text-transform: uppercase; font-size: 16px; margin-bottom: 20px; color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 8px;">Dossiê Documental Confidencial</div>${fotosAnexosHTML}`; }
-            htmlString += `</div>`; 
+            if (temAssinatura && assinaturaSalvaBase64 !== "") { 
+                html += '<div style="display:block;width:100%;clear:both;page-break-inside:avoid;margin-top:30px;text-align:center;border-top:1px solid #e0e0e0;padding-top:30px;"><img src="' + assinaturaSalvaBase64 + '" style="max-width:250px;max-height:100px;display:block;margin:0 auto;border-bottom:1px solid #111;padding-bottom:5px;"><div style="font-family:\'Montserrat\',sans-serif;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:10px;">Aprovação - Titular</div></div>'; 
+            }
+            html += '</div>'; 
             
-            pdfZone.innerHTML = htmlString; 
+            pdfZone.innerHTML = html; 
             window.scrollTo(0, 0);
 
-            setTimeout(() => {
-                const opt = { 
-                    margin:, 
-                    filename: nomeFicheiroFinal, 
-                    image: { type: 'jpeg', quality: 0.95 }, 
-                    html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-                };
-                
-                html2pdf().set(opt).from(pdfZone).save().then(() => { 
-                    pdfZone.style.display = 'none'; 
-                    pdfZone.innerHTML = ''; 
-                    btn.innerText = "GERAR PITCH DECK DE INVESTIMENTO (PDF)"; 
-                    btn.disabled = false;
-                }).catch(err => {
-                    alert("Aviso Técnico: Overflow de memória. Limpe a cache do dispositivo."); 
-                    btn.innerText = "GERAR PITCH DECK DE INVESTIMENTO (PDF)"; 
-                    btn.disabled = false;
-                });
+            setTimeout(function() {
+                try {
+                    html2pdf().set({ margin:, filename: nomeFinal, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(pdfZone).save().then(function() { 
+                        pdfZone.style.display = 'none'; pdfZone.innerHTML = ''; btn.innerText = "GERAR PITCH DECK (PDF)"; btn.disabled = false;
+                    });
+                } catch(e) {
+                    alert("Erro ao gerar PDF: " + e.message); btn.innerText = "GERAR PITCH DECK (PDF)"; btn.disabled = false;
+                }
             }, 1000); 
         });
 
-        // 6. INICIALIZAÇÃO
         renderizarDashboard();
     </script>
 </body>
