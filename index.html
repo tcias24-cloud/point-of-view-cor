@@ -511,12 +511,14 @@
                     `).join('');
                 }
 
-                // Render Signature
-                sigCtx.clearRect(0,0, els.sigPad.width, els.sigPad.height);
-                if (item.signature) {
-                    const img = new Image();
-                    img.onload = () => sigCtx.drawImage(img, 0, 0);
-                    img.src = item.signature;
+                // Render Signature SAFE CHECK (Evita NPE)
+                if (sigCtx) {
+                    sigCtx.clearRect(0,0, els.sigPad.width, els.sigPad.height);
+                    if (item.signature) {
+                        const img = new Image();
+                        img.onload = () => sigCtx.drawImage(img, 0, 0);
+                        img.src = item.signature;
+                    }
                 }
 
                 // Reset AI Panel
@@ -529,18 +531,23 @@
             const navigate = (view) => {
                 Object.values(views).forEach(v => v.classList.add('hidden'));
                 if (view === 'dash') {
-                    renderDashboard(); views.dash.classList.remove('hidden');
+                    renderDashboard(); 
+                    views.dash.classList.remove('hidden');
                 } else if (view === 'editor') {
-                    renderEditor(); views.editor.classList.remove('hidden');
-                    // Resize canvas properly when visible
+                    // 1. Revela a View no DOM primeiro (Força o repaint/reflow)
+                    views.editor.classList.remove('hidden'); 
+                    // 2. Renderiza de forma segura
+                    renderEditor();
+                    
+                    // 3. Inicializa dependências gráficas com o container visível
                     setTimeout(() => {
                         const rect = els.sigPad.parentElement.getBoundingClientRect();
-                        els.sigPad.width = rect.width - 48; // padding
+                        els.sigPad.width = rect.width > 0 ? rect.width - 48 : window.innerWidth - 88; 
                         els.sigPad.height = 200;
                         sigCtx = els.sigPad.getContext('2d');
                         sigCtx.lineWidth = 2; sigCtx.strokeStyle = "#000";
-                        renderEditor(); // Re-render signature onto sized canvas
-                    }, 100);
+                        renderEditor(); // Refresca a assinatura no novo contexto dimensionado
+                    }, 50);
                 }
                 window.scrollTo(0,0);
             };
@@ -638,8 +645,8 @@
                     const clientY = e.touches ? e.touches.clientY : e.clientY;
                     return { x: clientX - rect.left, y: clientY - rect.top };
                 };
-                const startSig = (e) => { if(e.type==='touchstart') e.preventDefault(); isDrawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); };
-                const drawSig = (e) => { if(e.type==='touchmove') e.preventDefault(); if(!isDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); };
+                const startSig = (e) => { if(e.type==='touchstart') e.preventDefault(); isDrawing = true; const p = getPos(e); if(sigCtx) {sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y);} };
+                const drawSig = (e) => { if(e.type==='touchmove') e.preventDefault(); if(!isDrawing || !sigCtx) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); };
                 const stopSig = async () => { 
                     if(!isDrawing) return; isDrawing = false; 
                     // Save silently
@@ -651,7 +658,7 @@
                 els.sigPad.addEventListener('touchstart', startSig, {passive:false}); els.sigPad.addEventListener('touchmove', drawSig, {passive:false}); els.sigPad.addEventListener('touchend', stopSig);
 
                 document.getElementById('btn-clear-sig').addEventListener('click', async () => {
-                    sigCtx.clearRect(0,0, els.sigPad.width, els.sigPad.height);
+                    if(sigCtx) sigCtx.clearRect(0,0, els.sigPad.width, els.sigPad.height);
                     await Store.updateCurrent(item => { item.signature = null; });
                 });
 
