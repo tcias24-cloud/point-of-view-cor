@@ -1,210 +1,301 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>POV App - V36.1 (Production)</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{--bg-deep:#000;--bg-card:#0c0c0c;--border-subtle:#222;--gold-pov:#D4AF37;--gold-dim:rgba(212,175,55,0.15);--text-main:#f0f0f0;--text-muted:#888;}
-body{font-family:'Montserrat',sans-serif;background-color:var(--bg-deep);color:var(--text-main);padding:15px;margin:0;-webkit-font-smoothing:antialiased;}
-.header-brand{text-align:center;margin-bottom:25px;margin-top:10px;}
-.header-brand h1{font-family:'Playfair Display',serif;color:var(--gold-pov);font-size:24px;margin:0;letter-spacing:3px;font-weight:600;text-transform:uppercase;}
-.header-brand p{font-size:10px;color:var(--text-muted);letter-spacing:5px;text-transform:uppercase;margin-top:5px;}
-.card{background:var(--bg-card);padding:25px 20px;border-radius:2px;border:1px solid var(--border-subtle);margin-bottom:20px;position:relative;overflow:hidden;}
-.card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold-pov);opacity:0.8;}
-h2{font-family:'Playfair Display',serif;margin-top:0;font-size:15px;text-transform:uppercase;border-bottom:1px solid var(--border-subtle);padding-bottom:12px;color:var(--text-main);letter-spacing:1px;font-weight:400;}
-h2 span{color:var(--gold-pov);margin-right:8px;font-size:14px;}
-.btn-acao{background-color:#fff;color:#000;border:none;padding:16px;font-size:12px;font-weight:600;border-radius:2px;width:100%;margin-bottom:15px;cursor:pointer;text-transform:uppercase;letter-spacing:1.5px;transition:0.3s;font-family:'Montserrat',sans-serif;}
-.btn-acao:active{transform:scale(0.98);}
-.btn-gold{background-color:var(--gold-pov);color:#000;border:1px solid #ebc64f;}
-.btn-outline{background:transparent;color:var(--gold-pov);border:1px solid var(--gold-pov);}
-.input-group{display:flex;gap:10px;margin-bottom:15px;}
-.input-meta,.select-divisao{flex:1;padding:14px;border-radius:2px;border:1px solid var(--border-subtle);background:#111;color:#fff;font-size:13px;font-family:inherit;}
-.input-meta:focus,.select-divisao:focus{outline:none;border-color:var(--gold-pov);background:#000;}
-.btn-mic-pequeno{background-color:#111;color:var(--gold-pov);border:1px solid var(--border-subtle);border-radius:2px;width:48px;display:flex;justify-content:center;align-items:center;cursor:pointer;font-size:16px;}
-.hidden-input{position:absolute;width:0.1px;height:0.1px;opacity:0;overflow:hidden;z-index:-1;}
-.upload-wrapper{background:#0a0a0a;border:1px dashed var(--border-subtle);padding:15px;border-radius:2px;margin-bottom:12px;text-align:center;}
-.upload-wrapper.loaded{border-color:var(--gold-pov);border-style:solid;background:var(--gold-dim);}
-.lbl-doc-title{font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:500;margin-bottom:12px;display:block;}
-.lbl-doc-title.loaded{color:var(--gold-pov);}
-.dual-btn-container{display:flex;gap:8px;width:100%;justify-content:center;}
-.btn-micro{background:#111;color:var(--text-main);border:1px solid var(--border-subtle);border-radius:2px;padding:12px 5px;font-size:9px;cursor:pointer;text-transform:uppercase;flex:1;text-align:center;letter-spacing:1px;}
-.ai-engine-box{border:1px solid var(--gold-pov);background:#080808;padding:20px;border-radius:2px;text-align:center;margin-bottom:15px;}
-.ai-title{font-family:'Playfair Display',serif;color:var(--gold-pov);font-size:16px;margin-bottom:5px;}
-.ai-subtitle{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;}
-#previewImagem{width:100%;max-height:300px;object-fit:cover;border-radius:2px;margin-bottom:15px;display:none;border:1px solid var(--border-subtle);}
-.painel-ditado{display:none;align-items:flex-start;gap:10px;margin-bottom:10px;background:#0a0a0a;padding:12px;border-radius:2px;border:1px solid var(--border-subtle);}
-.btn-icone-mic{background-color:#222;color:var(--gold-pov);border:1px solid var(--border-subtle);border-radius:50%;width:50px;height:50px;font-size:18px;display:flex;justify-content:center;align-items:center;flex-shrink:0;}
-.visor-texto{width:100%;min-height:80px;padding:12px;border-radius:2px;background:#111;color:#fff;font-size:13px;resize:none;}
-.painel-tags{display:none;flex-wrap:wrap;gap:8px;margin-bottom:15px;}
-.smart-tag{background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);padding:8px 14px;border-radius:30px;font-size:9px;cursor:pointer;text-transform:uppercase;}
-.status{font-size:9px;color:var(--text-muted);margin-bottom:15px;text-transform:uppercase;text-align:center;letter-spacing:2px;}
-#canvasAssinatura{width:100%;height:150px;background:#fff;border-radius:2px;touch-action:none;margin-bottom:10px;}
-.btn-limpar-canvas{background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);padding:10px;font-size:10px;text-transform:uppercase;border-radius:2px;width:100%;margin-bottom:15px;}
-.foto-item-ui{background:#0a0a0a;padding:15px;border-radius:2px;margin-bottom:10px;border-left:2px solid var(--gold-pov);display:flex;gap:15px;border-bottom:1px solid var(--border-subtle);border-right:1px solid var(--border-subtle);border-top:1px solid var(--border-subtle);}
-.ui-img-box{width:70px;height:70px;border-radius:2px;background-size:cover;background-position:center;flex-shrink:0;}
-.foto-item-ui p{font-size:11px;margin:0;flex:1;color:#ccc;line-height:1.5;white-space:pre-wrap;}
-.badge-categoria{font-size:8px;background:#111;color:var(--gold-pov);padding:4px 8px;border-radius:2px;text-transform:uppercase;margin-bottom:6px;display:inline-block;}
-.btn-dl-img{background:transparent;color:var(--text-muted);border:1px solid var(--border-subtle);border-radius:2px;font-size:8px;padding:6px 10px;cursor:pointer;margin-top:8px;text-transform:uppercase;}
-#pdf-render-zone{display:none;background-color:#fff;color:#000;width:100%;padding:40px;box-sizing:border-box;}
-#crm-dashboard{display:block;} #app-ui-container{display:none;}
-.crm-item{background:#0a0a0a;border:1px solid var(--border-subtle);padding:18px;border-radius:2px;margin-bottom:12px;border-left:3px solid var(--gold-pov);display:flex;justify-content:space-between;align-items:center;}
-.crm-title{font-weight:600;font-size:13px;color:#fff;margin-bottom:6px;font-family:'Playfair Display',serif;}
-.crm-ref{font-size:10px;color:var(--text-muted);text-transform:uppercase;}
-.btn-voltar{background:transparent;color:var(--text-muted);border:none;padding:10px 0;width:100%;margin-bottom:20px;text-transform:uppercase;font-size:10px;border-bottom:1px solid var(--border-subtle);text-align:left;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POV App - Neural CRM V37 (Bypass Edition)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-deep:#000; --bg-card:#0c0c0c; --border-subtle:#222; --gold-pov:#D4AF37; --gold-dim:rgba(212,175,55,0.15); --text-main:#f0f0f0; --text-muted:#888; }
+        body { font-family:'Montserrat',sans-serif; background-color:var(--bg-deep); color:var(--text-main); padding:15px; margin:0; -webkit-font-smoothing:antialiased; }
+        .header-brand { text-align:center; margin-bottom:25px; margin-top:10px; }
+        .header-brand h1 { font-family:'Playfair Display',serif; color:var(--gold-pov); font-size:24px; margin:0; letter-spacing:3px; font-weight:600; text-transform:uppercase; }
+        .header-brand p { font-size:10px; color:var(--text-muted); letter-spacing:5px; text-transform:uppercase; margin-top:5px; }
+        .card { background:var(--bg-card); padding:25px 20px; border-radius:2px; border:1px solid var(--border-subtle); margin-bottom:20px; position:relative; overflow:hidden; }
+        .card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--gold-pov); opacity:0.8; }
+        h2 { font-family:'Playfair Display',serif; margin-top:0; font-size:15px; text-transform:uppercase; border-bottom:1px solid var(--border-subtle); padding-bottom:12px; color:var(--text-main); letter-spacing:1px; font-weight:400; }
+        h2 span { color:var(--gold-pov); margin-right:8px; font-size:14px; }
+        .btn-acao { background-color:#fff; color:#000; border:none; padding:16px; font-size:12px; font-weight:600; border-radius:2px; width:100%; margin-bottom:15px; cursor:pointer; text-transform:uppercase; letter-spacing:1.5px; transition:0.3s; font-family:'Montserrat',sans-serif; }
+        .btn-acao:active { transform:scale(0.98); }
+        .btn-gold { background-color:var(--gold-pov); color:#000; border:1px solid #ebc64f; }
+        .btn-outline { background:transparent; color:var(--gold-pov); border:1px solid var(--gold-pov); }
+        .input-group { display:flex; gap:10px; margin-bottom:15px; }
+        .input-meta, .select-divisao { flex:1; padding:14px; border-radius:2px; border:1px solid var(--border-subtle); background:#111; color:#fff; font-size:13px; font-family:inherit; }
+        .input-meta:focus, .select-divisao:focus { outline:none; border-color:var(--gold-pov); background:#000; }
+        .btn-mic-pequeno { background-color:#111; color:var(--gold-pov); border:1px solid var(--border-subtle); border-radius:2px; width:48px; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:16px; }
+        .hidden-input { position:absolute; width:0.1px; height:0.1px; opacity:0; overflow:hidden; z-index:-1; }
+        .upload-wrapper { background:#0a0a0a; border:1px dashed var(--border-subtle); padding:15px; border-radius:2px; margin-bottom:12px; text-align:center; }
+        .upload-wrapper.loaded { border-color:var(--gold-pov); border-style:solid; background:var(--gold-dim); }
+        .lbl-doc-title { font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:500; margin-bottom:12px; display:block; }
+        .lbl-doc-title.loaded { color:var(--gold-pov); }
+        .dual-btn-container { display:flex; gap:8px; width:100%; justify-content:center; }
+        .btn-micro { background:#111; color:var(--text-main); border:1px solid var(--border-subtle); border-radius:2px; padding:12px 5px; font-size:9px; cursor:pointer; text-transform:uppercase; flex:1; text-align:center; letter-spacing:1px; }
+        .ai-engine-box { border:1px solid var(--gold-pov); background:#080808; padding:20px; border-radius:2px; text-align:center; margin-bottom:15px; }
+        .ai-title { font-family:'Playfair Display',serif; color:var(--gold-pov); font-size:16px; margin-bottom:5px; }
+        .ai-subtitle { font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px; }
+        #previewImagem { width:100%; max-height:300px; object-fit:cover; border-radius:2px; margin-bottom:15px; display:none; border:1px solid var(--border-subtle); }
+        .painel-ditado { display:none; align-items:flex-start; gap:10px; margin-bottom:10px; background:#0a0a0a; padding:12px; border-radius:2px; border:1px solid var(--border-subtle); }
+        .btn-icone-mic { background-color:#222; color:var(--gold-pov); border:1px solid var(--border-subtle); border-radius:50%; width:50px; height:50px; font-size:18px; display:flex; justify-content:center; align-items:center; flex-shrink:0; }
+        .visor-texto { width:100%; min-height:80px; padding:12px; border-radius:2px; background:#111; color:#fff; font-size:13px; resize:none; border:1px solid transparent; }
+        .painel-tags { display:none; flex-wrap:wrap; gap:8px; margin-bottom:15px; }
+        .smart-tag { background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:8px 14px; border-radius:30px; font-size:9px; cursor:pointer; text-transform:uppercase; }
+        .status { font-size:9px; color:var(--text-muted); margin-bottom:15px; text-transform:uppercase; text-align:center; letter-spacing:2px; }
+        #canvasAssinatura { width:100%; height:150px; background:#fff; border-radius:2px; touch-action:none; margin-bottom:10px; }
+        .btn-limpar-canvas { background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:10px; font-size:10px; text-transform:uppercase; border-radius:2px; width:100%; margin-bottom:15px; }
+        .foto-item-ui { background:#0a0a0a; padding:15px; border-radius:2px; margin-bottom:10px; border-left:2px solid var(--gold-pov); display:flex; gap:15px; border-bottom:1px solid var(--border-subtle); }
+        .ui-img-box { width:70px; height:70px; border-radius:2px; background-size:cover; background-position:center; flex-shrink:0; }
+        .foto-item-ui p { font-size:11px; margin:0; flex:1; color:#ccc; line-height:1.5; white-space:pre-wrap; }
+        .badge-categoria { font-size:8px; background:#111; color:var(--gold-pov); padding:4px 8px; border-radius:2px; text-transform:uppercase; margin-bottom:6px; display:inline-block; }
+        .btn-dl-img { background:transparent; color:var(--text-muted); border:1px solid var(--border-subtle); border-radius:2px; font-size:8px; padding:6px 10px; cursor:pointer; margin-top:8px; text-transform:uppercase; }
+        #pdf-render-zone { display:none; background-color:#fff; color:#000; width:100%; padding:40px; box-sizing:border-box; }
+        #crm-dashboard { display:block; } #app-ui-container { display:none; }
+        .crm-item { background:#0a0a0a; border:1px solid var(--border-subtle); padding:18px; border-radius:2px; margin-bottom:12px; border-left:3px solid var(--gold-pov); display:flex; justify-content:space-between; align-items:center; cursor:pointer;}
+        .crm-title { font-weight:600; font-size:13px; color:#fff; margin-bottom:6px; font-family:'Playfair Display',serif; }
+        .crm-ref { font-size:10px; color:var(--text-muted); text-transform:uppercase; }
+        .btn-voltar { background:transparent; color:var(--text-muted); border:none; padding:10px 0; width:100%; margin-bottom:20px; text-transform:uppercase; font-size:10px; border-bottom:1px solid var(--border-subtle); text-align:left; cursor:pointer;}
+    </style>
 </head>
 <body>
-<div class="header-brand"><h1>POV<span>CRM</span></h1><p>Neural Enterprise System</p></div>
+    <div class="header-brand"><h1>POV<span>CRM</span></h1><p>Neural Enterprise System</p></div>
 
-<div id="crm-dashboard">
-    <div class="card">
-        <h2><span>🗂️</span> Gestor de Portfólio</h2>
-        <div id="lista-crm" style="margin-bottom:25px;"></div>
-        <button class="btn-acao btn-gold" onclick="iniciarNovoMandato()">➕ INICIAR NOVO MANDATO</button>
-        <button class="btn-acao" style="background:transparent;color:#444;border:1px solid #222;font-size:9px;" onclick="limparSistema()">FORMATAR DADOS</button>
-    </div>
-</div>
-
-<div id="app-ui-container">
-    <button class="btn-voltar" onclick="fecharEVoltar()">⬅ Voltar ao Portfólio</button>
-    <div class="card">
-        <h2><span>🏢</span> 1. Identidade</h2>
-        <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Agência"></div>
-        <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
-        <div class="upload-wrapper" id="wrap_logo"><span class="lbl-doc-title" id="lblText_logo">Logótipo</span>
-            <div class="dual-btn-container"><label for="fileLogo_gal" class="btn-micro">📂 Fich</label><input type="file" id="fileLogo_gal" class="hidden-input"><label for="fileLogo_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input"></div>
+    <div id="crm-dashboard">
+        <div class="card">
+            <h2><span>🗂️</span> Gestor de Portfólio</h2>
+            <div id="lista-crm" style="margin-bottom:25px;"></div>
+            <button id="botao-arranque" class="btn-acao btn-gold">➕ INICIAR NOVO MANDATO</button>
+            <button class="btn-acao" style="background:transparent;color:#444;border:1px solid #222;font-size:9px;" id="botao-limpar">FORMATAR DADOS</button>
         </div>
     </div>
-    <div class="card">
-        <h2><span>📍</span> 2. Ativo</h2>
-        <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="Ref Interna"></div>
-        <div class="input-group"><input type="text" id="inputLocal" class="input-meta" placeholder="Localização"><button id="micLocal" class="btn-mic-pequeno">🎙️</button></div>
-        <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Target (€)"></div>
-    </div>
-    <div class="card">
-        <h2><span>👤</span> 3. Proprietário</h2>
-        <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Titular"></div>
-        <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Contacto"></div>
-        <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada"></div>
-        <div style="display:flex;gap:10px;">
-            <div class="upload-wrapper" id="wrap_ccF" style="flex:1;"><span class="lbl-doc-title" id="lblText_ccF">ID Frente</span><div class="dual-btn-container"><label for="fileCCF_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCCF_gal" class="hidden-input"><label for="fileCCF_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-            <div class="upload-wrapper" id="wrap_ccV" style="flex:1;"><span class="lbl-doc-title" id="lblText_ccV">ID Verso</span><div class="dual-btn-container"><label for="fileCCV_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCCV_gal" class="hidden-input"><label for="fileCCV_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+
+    <div id="app-ui-container">
+        <button class="btn-voltar" id="botao-voltar">⬅ Voltar ao Portfólio</button>
+        
+        <div class="card">
+            <h2><span>🏢</span> 1. Identidade</h2>
+            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Agência"></div>
+            <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
+            <div class="upload-wrapper" id="wrap_logo"><span class="lbl-doc-title" id="lblText_logo">Logótipo</span>
+                <div class="dual-btn-container"><label for="fileLogo_gal" class="btn-micro">📂 Fich</label><input type="file" id="fileLogo_gal" class="hidden-input"><label for="fileLogo_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input"></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2><span>📍</span> 2. Ativo</h2>
+            <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="Ref Interna"></div>
+            <div class="input-group"><input type="text" id="inputLocal" class="input-meta" placeholder="Localização"><button id="micLocal" class="btn-mic-pequeno">🎙️</button></div>
+            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Target (€)"></div>
+        </div>
+        <div class="card">
+            <h2><span>👤</span> 3. Proprietário</h2>
+            <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Titular"></div>
+            <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Contacto"></div>
+            <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada"></div>
+            <div style="display:flex;gap:10px;">
+                <div class="upload-wrapper" id="wrap_ccF" style="flex:1;"><span class="lbl-doc-title" id="lblText_ccF">ID Frente</span><div class="dual-btn-container"><label for="fileCCF_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCCF_gal" class="hidden-input"><label for="fileCCF_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+                <div class="upload-wrapper" id="wrap_ccV" style="flex:1;"><span class="lbl-doc-title" id="lblText_ccV">ID Verso</span><div class="dual-btn-container"><label for="fileCCV_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCCV_gal" class="hidden-input"><label for="fileCCV_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2><span>📂</span> 4. Conformidade</h2>
+            <div class="upload-wrapper" id="wrap_caderneta"><span class="lbl-doc-title" id="lblText_caderneta">Caderneta</span><div class="dual-btn-container"><label for="fileCaderneta_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCaderneta_gal" class="hidden-input"><label for="fileCaderneta_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            <div class="upload-wrapper" id="wrap_registo"><span class="lbl-doc-title" id="lblText_registo">Registo</span><div class="dual-btn-container"><label for="fileRegisto_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileRegisto_gal" class="hidden-input"><label for="fileRegisto_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            <div class="upload-wrapper" id="wrap_licenca"><span class="lbl-doc-title" id="lblText_licenca">Licença</span><div class="dual-btn-container"><label for="fileLicenca_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileLicenca_gal" class="hidden-input"><label for="fileLicenca_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            <div class="upload-wrapper" id="wrap_certificado"><span class="lbl-doc-title" id="lblText_certificado">Certificado</span><div class="dual-btn-container"><label for="fileCertificado_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCertificado_gal" class="hidden-input"><label for="fileCertificado_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+            <div class="upload-wrapper" id="wrap_outros"><span class="lbl-doc-title" id="lblText_outros">Outros</span><div class="dual-btn-container"><label for="fileOutros_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileOutros_gal" class="hidden-input"><label for="fileOutros_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
+        </div>
+        <div class="card" style="border-color:var(--gold-pov);">
+            <h2><span>📷</span> 5. Vistoria Elite</h2>
+            <select id="selectDivisao" class="select-divisao" style="width:100%;margin-bottom:20px;"><option>Exterior / Fachada</option><option>Hall de Entrada</option><option>Sala de Estar / Jantar</option><option>Cozinha</option><option>Quarto Principal (Suite)</option><option>Quarto</option><option>Casa de Banho</option><option>Jardim / Piscina</option><option>Cave / Arrumos</option></select>
+            <div class="ai-engine-box">
+                <div class="ai-title">CINEMATIC GRADING</div><div class="ai-subtitle">Edge AI Local</div>
+                <input type="file" accept="image/*" capture="environment" id="camera-input-edge" class="hidden-input"><button class="btn-acao btn-gold" style="margin-bottom:10px;" id="btnCamera">📸 CÂMARA ELITE</button>
+                <input type="file" accept="image/*" id="gallery-input-edge" class="hidden-input"><button class="btn-acao btn-outline" style="margin-bottom:0;font-size:9px;padding:12px;" id="btnGaleria">📂 GALERIA</button>
+                <canvas id="processing-canvas-edge" style="display:none;"></canvas>
+            </div>
+            <div class="status" id="micStatus">Aguardando Sensor...</div><img id="previewImagem" src="" alt="Preview">
+            <div class="painel-ditado" id="painelDitado"><button id="btnIconeMic" class="btn-icone-mic">🎙️</button><textarea id="visorNota" class="visor-texto" placeholder="Dite a arquitetura..."></textarea></div>
+            <div class="painel-tags" id="painelTags"><button class="smart-tag" id="tag1">Luz Natural</button><button class="smart-tag" id="tag2">Alta Gama</button><button class="smart-tag" id="tag3">Design</button><button class="smart-tag" id="tag4">Áreas</button></div>
+            <button id="guardarBtn" class="btn-acao btn-gold" style="display:none;margin-top:20px;">GUARDAR REGISTO (GPS)</button>
+        </div>
+        <div class="card">
+            <h2><span>✍️</span> 6. Assinatura</h2>
+            <canvas id="canvasAssinatura"></canvas><button class="btn-limpar-canvas" id="btnLimparQuadro">Limpar Quadro</button>
+        </div>
+        <div class="card">
+            <h2><span>🗂️</span> Emissão PDF</h2>
+            <div class="input-group"><input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome Ficheiro (POV_01)"></div>
+            <div id="log-ui" style="font-size:11px;color:var(--text-muted);margin-bottom:20px;">Sem registos.</div>
+            <button id="gerarPdfBtn" class="btn-acao btn-gold">GERAR PITCH DECK (PDF)</button>
         </div>
     </div>
-    <div class="card">
-        <h2><span>📂</span> 4. Conformidade</h2>
-        <div class="upload-wrapper" id="wrap_caderneta"><span class="lbl-doc-title" id="lblText_caderneta">Caderneta</span><div class="dual-btn-container"><label for="fileCaderneta_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCaderneta_gal" class="hidden-input"><label for="fileCaderneta_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-        <div class="upload-wrapper" id="wrap_registo"><span class="lbl-doc-title" id="lblText_registo">Registo</span><div class="dual-btn-container"><label for="fileRegisto_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileRegisto_gal" class="hidden-input"><label for="fileRegisto_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-        <div class="upload-wrapper" id="wrap_licenca"><span class="lbl-doc-title" id="lblText_licenca">Licença</span><div class="dual-btn-container"><label for="fileLicenca_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileLicenca_gal" class="hidden-input"><label for="fileLicenca_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-        <div class="upload-wrapper" id="wrap_certificado"><span class="lbl-doc-title" id="lblText_certificado">Certificado</span><div class="dual-btn-container"><label for="fileCertificado_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileCertificado_gal" class="hidden-input"><label for="fileCertificado_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-        <div class="upload-wrapper" id="wrap_outros"><span class="lbl-doc-title" id="lblText_outros">Outros</span><div class="dual-btn-container"><label for="fileOutros_gal" class="btn-micro">📂 Doc</label><input type="file" id="fileOutros_gal" class="hidden-input"><label for="fileOutros_cam" class="btn-micro">📸 Câm</label><input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input"></div></div>
-    </div>
-    <div class="card" style="border-color:var(--gold-pov);">
-        <h2><span>📷</span> 5. Vistoria Elite</h2>
-        <select id="selectDivisao" class="select-divisao" style="width:100%;margin-bottom:20px;"><option>Exterior / Fachada</option><option>Hall de Entrada</option><option>Sala de Estar / Jantar</option><option>Cozinha</option><option>Quarto Principal (Suite)</option><option>Quarto</option><option>Casa de Banho</option><option>Jardim / Piscina</option><option>Cave / Arrumos</option></select>
-        <div class="ai-engine-box">
-            <div class="ai-title">CINEMATIC GRADING</div><div class="ai-subtitle">Edge AI Local</div>
-            <input type="file" accept="image/*" capture="environment" id="camera-input-edge" class="hidden-input"><button class="btn-acao btn-gold" onclick="document.getElementById('camera-input-edge').click()">📸 CÂMARA ELITE</button>
-            <input type="file" accept="image/*" id="gallery-input-edge" class="hidden-input"><button class="btn-acao btn-outline" onclick="document.getElementById('gallery-input-edge').click()">📂 GALERIA</button>
-            <canvas id="processing-canvas-edge" style="display:none;"></canvas>
-        </div>
-        <div class="status" id="micStatus">Aguardando Sensor...</div><img id="previewImagem" src="" alt="Preview">
-        <div class="painel-ditado" id="painelDitado"><button id="btnIconeMic" class="btn-icone-mic">🎙️</button><textarea id="visorNota" class="visor-texto" placeholder="Dite a arquitetura..."></textarea></div>
-        <div class="painel-tags" id="painelTags"><button class="smart-tag" onclick="adicionarTag('Luz Natural')">Luz Natural</button><button class="smart-tag" onclick="adicionarTag('Alta Gama')">Alta Gama</button><button class="smart-tag" onclick="adicionarTag('Design Atual')">Design</button><button class="smart-tag" onclick="adicionarTag('Áreas Generosas')">Áreas</button></div>
-        <button id="guardarBtn" class="btn-acao btn-gold btn-guardar" style="display:none;">GUARDAR REGISTO (GPS)</button>
-    </div>
-    <div class="card">
-        <h2><span>✍️</span> 6. Assinatura</h2>
-        <canvas id="canvasAssinatura"></canvas><button class="btn-limpar-canvas" onclick="limparQuadro()">Limpar Quadro</button>
-    </div>
-    <div class="card">
-        <h2><span>🗂️</span> Emissão PDF</h2>
-        <div class="input-group"><input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome Ficheiro (POV_01)"></div>
-        <div id="log-ui" style="font-size:11px;color:var(--text-muted);margin-bottom:20px;">Sem registos.</div>
-        <button id="gerarPdfBtn" class="btn-acao btn-gold">GERAR PITCH DECK (PDF)</button>
-    </div>
-</div>
-<div id="pdf-render-zone"></div>
+    <div id="pdf-render-zone"></div>
 
-<script>
-var crmData=[]; try{var c=localStorage.getItem('pov_crm_v36_1');if(c){crmData=JSON.parse(c);if(!Array.isArray(crmData))crmData=[];}}catch(e){crmData=[];}
-var activeIndex=-1, metadados={}, docsApp={}, memoriaApp=[], assinaturaSalvaBase64="", tempImagemBase64="", assinando=false, temAssinatura=false;
-var uiDashboard=document.getElementById('crm-dashboard'), uiEditor=document.getElementById('app-ui-container'), listaCRM=document.getElementById('lista-crm'), canvasAssinatura=document.getElementById('canvasAssinatura');
-var ctxAssinatura=null; if(canvasAssinatura){try{ctxAssinatura=canvasAssinatura.getContext('2d');}catch(e){}}
-var SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    <script>
+        // BYPASS CENTRALIZADO (RESOLVE O BOTÃO MORTO)
+        var crmData = [];
+        try { var c = localStorage.getItem('pov_crm_master'); if(c) crmData = JSON.parse(c); } catch(e) {}
+        if(!Array.isArray(crmData)) crmData = [];
 
-var docKeys=[{key:'logo',txt:'Logótipo'},{key:'ccF',txt:'ID Frente'},{key:'ccV',txt:'ID Verso'},{key:'caderneta',txt:'Caderneta'},{key:'registo',txt:'Registo'},{key:'licenca',txt:'Licença'},{key:'certificado',txt:'Certificado'},{key:'outros',txt:'Outros'}];
-var mapMeta=[{id:'inputAgencia',key:'agencia'},{id:'inputAMI',key:'ami'},{id:'inputReferencia',key:'ref'},{id:'inputLocal',key:'local'},{id:'inputPreco',key:'preco'},{id:'inputNomeProp',key:'nomeProp'},{id:'inputContactoProp',key:'contactoProp'},{id:'inputMoradaProp',key:'moradaProp'}];
+        var activeIndex = -1; var metadados = {}; var docsApp = {}; var memoriaApp = []; var assinaturaSalvaBase64 = ""; var tempImagemBase64 = ""; var assinando = false; var temAssinatura = false;
+        
+        var uiDashboard = document.getElementById('crm-dashboard');
+        var uiEditor = document.getElementById('app-ui-container');
+        var listaCRM = document.getElementById('lista-crm');
+        var canvasAssinatura = document.getElementById('canvasAssinatura');
+        var ctxAssinatura = canvasAssinatura ? canvasAssinatura.getContext('2d') : null;
 
-window.iniciarNovoMandato=function(){if(!crmData)crmData=[];crmData.push({id:Date.now(),titulo:"Rascunho...",data:new Date().toLocaleDateString('pt-PT'),meta:{},docs:{},fotos:[],assinatura:""});abrirPasta(crmData.length-1);};
-window.fecharEVoltar=function(){guardarNoCRM();uiEditor.style.display="none";uiDashboard.style.display="block";window.scrollTo(0,0);};
-window.limparSistema=function(){if(confirm("Apagar todos?")){localStorage.removeItem('pov_crm_v36_1');crmData=[];renderizarDashboard();}};
-window.abrirPastaAExistente=function(i){abrirPasta(i);};
-window.limparQuadro=function(){if(ctxAssinatura)ctxAssinatura.clearRect(0,0,canvasAssinatura.width,canvasAssinatura.height);temAssinatura=false;assinaturaSalvaBase64="";guardarNoCRM();}
-window.adicionarTag=function(t){var v=document.getElementById('visorNota');v.value=v.value.trim()+(v.value.trim()?'\n':'')+'✦ '+t;}
-window.descarregarFoto=function(i){if(activeIndex===-1||!memoriaApp[i])return;var a=document.createElement('a');a.href=memoriaApp[i].imagem;a.download='POV_'+memoriaApp[i].categoria.replace(/[^a-zA-Z0-9]/g,'_')+'.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);};
+        var docKeys = [{key:'logo',txt:'Logótipo'},{key:'ccF',txt:'ID Frente'},{key:'ccV',txt:'ID Verso'},{key:'caderneta',txt:'Caderneta'},{key:'registo',txt:'Registo'},{key:'licenca',txt:'Licença'},{key:'certificado',txt:'Certificado'},{key:'outros',txt:'Outros'}];
+        var mapMeta = [{id:'inputAgencia',key:'agencia'},{id:'inputAMI',key:'ami'},{id:'inputReferencia',key:'ref'},{id:'inputLocal',key:'local'},{id:'inputPreco',key:'preco'},{id:'inputNomeProp',key:'nomeProp'},{id:'inputContactoProp',key:'contactoProp'},{id:'inputMoradaProp',key:'moradaProp'}];
 
-function guardarNoCRM(){
-    if(activeIndex===-1)return;
-    crmData[activeIndex]={id:crmData[activeIndex].id||Date.now(),titulo:metadados.local||metadados.ref||"Target "+(activeIndex+1),data:crmData[activeIndex].data||new Date().toLocaleDateString('pt-PT'),meta:metadados,docs:docsApp,fotos:memoriaApp,assinatura:assinaturaSalvaBase64};
-    try{localStorage.setItem('pov_crm_v36_1',JSON.stringify(crmData));}catch(e){}
-    renderizarDashboard();
-}
-function renderizarDashboard(){
-    listaCRM.innerHTML="";if(crmData.length===0){listaCRM.innerHTML="<p style='color:#666;font-size:11px;'>Sem registos.</p>";return;}
-    crmData.forEach(function(p,i){var nf=p.fotos?p.fotos.length:0;listaCRM.innerHTML+='<div class="crm-item" onclick="abrirPastaAExistente('+i+')"><div><div class="crm-title">'+p.titulo+'</div><div class="crm-ref">'+p.data+' | 📷 '+nf+' Img</div></div><div style="color:var(--gold-pov);font-size:16px;">➔</div></div>';});
-}
-function resetarCameraVisual(){tempImagemBase64="";document.getElementById('previewImagem').style.display="none";document.getElementById('previewImagem').src="";document.getElementById('painelDitado').style.display="none";document.getElementById('painelTags').style.display="none";document.getElementById('guardarBtn').style.display="none";document.getElementById('visorNota').value="";document.getElementById('micStatus').innerText="Aguardando...";}
-function inicializarCanvas(){if(!ctxAssinatura||!canvasAssinatura)return;var r=canvasAssinatura.parentElement.getBoundingClientRect();canvasAssinatura.width=r.width>0?r.width-40:window.innerWidth-70;canvasAssinatura.height=150;ctxAssinatura.lineWidth=2;ctxAssinatura.lineCap='round';ctxAssinatura.strokeStyle='#000';}
-function abrirPasta(idx){
-    activeIndex=idx; var p=crmData[idx]; metadados=p.meta||{}; docsApp=p.docs||{}; memoriaApp=p.fotos||[]; assinaturaSalvaBase64=p.assinatura||"";
-    mapMeta.forEach(function(b){var el=document.getElementById(b.id);if(el)el.value=metadados[b.key]||"";});
-    docKeys.forEach(function(d){var t=document.getElementById('lblText_'+d.key),w=document.getElementById('wrap_'+d.key);if(!t||!w)return;if(docsApp[d.key]){t.innerText="✅ "+d.txt;t.classList.add('loaded');w.classList.add('loaded');}else{t.innerText=d.txt;t.classList.remove('loaded');w.classList.remove('loaded');}});
-    resetarCameraVisual(); renderizarInterface(); uiDashboard.style.display="none"; uiEditor.style.display="block"; window.scrollTo(0,0);
-    setTimeout(function(){try{inicializarCanvas();if(assinaturaSalvaBase64!==""&&ctxAssinatura){var img=new Image();img.onload=function(){ctxAssinatura.drawImage(img,0,0);};img.src=assinaturaSalvaBase64;temAssinatura=true;}else{temAssinatura=false;}}catch(e){}},150);
-}
-mapMeta.forEach(function(b){var el=document.getElementById(b.id);if(el){el.addEventListener('input',function(e){metadados[b.key]=e.target.value;guardarNoCRM();});}});
+        // INJEÇÃO FORÇADA DE EVENTOS ASSIM QUE O ECRÃ CARREGA
+        window.onload = function() {
+            // 1. O BOTÃO PRINCIPAL (BYPASS LETAL)
+            document.getElementById('botao-arranque').addEventListener('click', function() {
+                try {
+                    uiDashboard.style.display = "none";
+                    uiEditor.style.display = "block";
+                    window.scrollTo(0,0);
+                    
+                    crmData.push({id: Date.now(), titulo: "Target B2B...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: ""});
+                    activeIndex = crmData.length - 1;
+                    
+                    metadados = {}; docsApp = {}; memoriaApp = []; assinaturaSalvaBase64 = "";
+                    mapMeta.forEach(function(b){ var el = document.getElementById(b.id); if(el) el.value = ""; });
+                    docKeys.forEach(function(d){ var t = document.getElementById('lblText_'+d.key); if(t) { t.innerText = d.txt; t.classList.remove('loaded'); }});
+                    
+                    document.getElementById('log-ui').innerHTML = "Sem registos.";
+                    setTimeout(function(){ if(ctxAssinatura){ ctxAssinatura.clearRect(0,0,canvasAssinatura.width,canvasAssinatura.height); canvasAssinatura.width = canvasAssinatura.parentElement.getBoundingClientRect().width - 40; canvasAssinatura.height=150; } }, 100);
+                } catch(e) { alert("ERRO DE ABERTURA: " + e.message); }
+            });
 
-function setupUpload(idG,idC,dk,txt){
-    var h=function(e){var f=e.target.files;if(!f||f.type.indexOf('image/')!==0)return;var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){var cv=document.createElement('canvas'),mw=dk==='logo'?400:800,w=img.width,h=img.height;if(w>mw){h=Math.round(h*mw/w);w=mw;}cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);docsApp[dk]=cv.toDataURL('image/jpeg',0.8);guardarNoCRM();var lt=document.getElementById('lblText_'+dk),wr=document.getElementById('wrap_'+dk);if(lt&&wr){lt.innerText="✅ "+txt;lt.classList.add('loaded');wr.classList.add('loaded');}};img.src=ev.target.result;};r.readAsDataURL(f);};
-    document.getElementById(idG).addEventListener('change',h);document.getElementById(idC).addEventListener('change',h);
-}
-docKeys.forEach(function(d){var gid='file'+d.key.charAt(0).toUpperCase()+d.key.slice(1)+'_gal',cid='file'+d.key.charAt(0).toUpperCase()+d.key.slice(1)+'_cam';if(document.getElementById(gid))setupUpload(gid,cid,d.key,d.txt);});
+            // 2. OUTROS BOTÕES UI
+            document.getElementById('botao-voltar').addEventListener('click', function() {
+                guardarNoCRM(); uiEditor.style.display = "none"; uiDashboard.style.display = "block"; window.scrollTo(0,0);
+            });
 
-var handleAI=function(e){
-    var f=e.target.files;if(!f||f.type.indexOf('image/')!==0)return;document.getElementById('micStatus').innerText="A aplicar Filtro Edge AI...";
-    var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){var cv=document.getElementById('processing-canvas-edge'),ctx=cv.getContext('2d'),w=img.width,h=img.height;if(w>1200){h=Math.round(h*1200/w);w=1200;}cv.width=w;cv.height=h;ctx.drawImage(img,0,0,w,h);try{var idata=ctx.getImageData(0,0,w,h),d=idata.data,c=1.18,bv=10;for(var i=0;i<d.length;i+=4){var rC=d[i],gC=d[i+1],bC=d[i+2];rC=((rC/255-0.5)*c+0.5)*255;gC=((gC/255-0.5)*c+0.5)*255;bC=((bC/255-0.5)*c+0.5)*255;rC+=bv+22;gC+=bv+12;bC+=bv-5;d[i]=rC>255?255:(rC<0?0:rC);d[i+1]=gC>255?255:(gC<0?0:gC);d[i+2]=bC>255?255:(bC<0?0:bC);}ctx.putImageData(idata,0,0);}catch(err){}
-    tempImagemBase64=cv.toDataURL('image/jpeg',0.85);document.getElementById('previewImagem').src=tempImagemBase64;document.getElementById('previewImagem').style.display="block";document.getElementById('painelDitado').style.display="flex";document.getElementById('painelTags').style.display="flex";document.getElementById('visorNota').value="";document.getElementById('micStatus').innerText="Sucesso.";document.getElementById('guardarBtn').style.display="block";ctx.clearRect(0,0,w,h);e.target.value="";};img.src=ev.target.result;};r.readAsDataURL(f);
-};
-document.getElementById('camera-input-edge').addEventListener('change',handleAI);document.getElementById('gallery-input-edge').addEventListener('change',handleAI);
+            document.getElementById('botao-limpar').addEventListener('click', function() {
+                if(confirm("Formatar o pipeline?")) { localStorage.removeItem('pov_crm_master'); crmData = []; renderizarDashboard(); }
+            });
 
-function renderizarInterface(){var log=document.getElementById('log-ui');if(memoriaApp.length===0){log.innerHTML="Sem registos.";return;}log.innerHTML="";memoriaApp.forEach(function(it,i){var txt=it.texto||"Sem notas.";log.innerHTML+='<div class="foto-item-ui"><div class="ui-img-box" style="background-image:url(\''+it.imagem+'\');"></div><div style="flex:1;"><div class="badge-categoria">'+it.categoria+'</div><p>'+txt+'</p><button class="btn-dl-img" onclick="descarregarFoto('+i+')">⬇ Download</button></div></div>';});}
-document.getElementById('guardarBtn').addEventListener('click',function(){this.style.display="none";var cc=function(c){memoriaApp.push({categoria:document.getElementById('selectDivisao').value,imagem:tempImagemBase64,texto:document.getElementById('visorNota').value.trim(),coordenadas:c,dataHora:new Date().toLocaleString('pt-PT')});guardarNoCRM();renderizarInterface();resetarCameraVisual();document.getElementById('micStatus').innerText="Guardado.";};document.getElementById('micStatus').innerText="GPS...";if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){cc('LAT: '+p.coords.latitude.toFixed(5)+' | LON: '+p.coords.longitude.toFixed(5));},function(){cc("GPS Omitido");},{enableHighAccuracy:true,timeout:5000});}else{cc("No GPS.");}});
+            document.getElementById('btnCamera').addEventListener('click', function() { document.getElementById('camera-input-edge').click(); });
+            document.getElementById('btnGaleria').addEventListener('click', function() { document.getElementById('gallery-input-edge').click(); });
+            document.getElementById('btnLimparQuadro').addEventListener('click', function() { if(ctxAssinatura) ctxAssinatura.clearRect(0,0,canvasAssinatura.width,canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); });
+            
+            document.getElementById('tag1').addEventListener('click', function(){ adicionarTag('Luz Natural'); });
+            document.getElementById('tag2').addEventListener('click', function(){ adicionarTag('Alta Gama'); });
+            document.getElementById('tag3').addEventListener('click', function(){ adicionarTag('Design'); });
+            document.getElementById('tag4').addEventListener('click', function(){ adicionarTag('Áreas'); });
 
-if(canvasAssinatura){var gp=function(e){var r=canvasAssinatura.getBoundingClientRect(),cx=e.touches?e.touches.clientX:e.clientX,cy=e.touches?e.touches.clientY:e.clientY;return{x:cx-r.left,y:cy-r.top};};canvasAssinatura.addEventListener('mousedown',function(e){assinando=true;var p=gp(e);if(ctxAssinatura){ctxAssinatura.beginPath();ctxAssinatura.moveTo(p.x,p.y);}});canvasAssinatura.addEventListener('mousemove',function(e){if(assinando&&ctxAssinatura){var p=gp(e);ctxAssinatura.lineTo(p.x,p.y);ctxAssinatura.stroke();temAssinatura=true;}});canvasAssinatura.addEventListener('mouseup',function(){assinando=false;if(temAssinatura){assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png');guardarNoCRM();}});canvasAssinatura.addEventListener('touchstart',function(e){e.preventDefault();assinando=true;var p=gp(e);if(ctxAssinatura){ctxAssinatura.beginPath();ctxAssinatura.moveTo(p.x,p.y);}},{passive:false});canvasAssinatura.addEventListener('touchmove',function(e){e.preventDefault();if(assinando&&ctxAssinatura){var p=gp(e);ctxAssinatura.lineTo(p.x,p.y);ctxAssinatura.stroke();temAssinatura=true;}},{passive:false});canvasAssinatura.addEventListener('touchend',function(){assinando=false;if(temAssinatura){assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png');guardarNoCRM();}});}
-function ativarDitado(inId,btnId){if(!SpeechRecognition)return;var r=new SpeechRecognition();r.continuous=false;r.lang='pt-PT';var tg=document.getElementById(inId),bt=document.getElementById(btnId);r.onstart=function(){bt.classList.add('recording');};r.onresult=function(e){var t=tg.value.trim(),n=e.results[e.resultIndex].transcript.trim();tg.value=t.length>0?t+" "+n:n;if(inId==='visorNota'&&tempImagemBase64!=="")document.getElementById('guardarBtn').style.display="block";if(inId==='inputLocal'){metadados.local=tg.value;guardarNoCRM();}};r.onend=function(){bt.classList.remove('recording');};try{r.start();}catch(e){}}
-document.getElementById('micLocal').addEventListener('click',function(){ativarDitado('inputLocal','micLocal');});document.getElementById('btnIconeMic').addEventListener('click',function(){ativarDitado('visorNota','btnIconeMic');});
+            renderizarDashboard();
+        };
 
-document.getElementById('gerarPdfBtn').addEventListener('click',function(){
-    var btn=this;btn.innerText="⏳ A COMPILAR...";btn.disabled=true;
-    var nf=document.getElementById('inputNomePdf')?document.getElementById('inputNomePdf').value.trim():"";if(nf==="")nf='POV_'+(metadados.ref||Date.now())+'.pdf';if(nf.toLowerCase().indexOf('.pdf')===-1)nf+='.pdf';
-    var z=document.getElementById('pdf-render-zone');z.style.display='block';
-    var h='<div style="font-family:Montserrat,sans-serif;color:#000;width:100%;margin:0;font-size:12px;"><table style="width:100%;border-bottom:2px solid #d4af37;padding-bottom:15px;margin-bottom:20px;"><tr><td style="width:50%;">'+(docsApp.logo?'<img src="'+docsApp.logo+'" style="max-height:50px;">':'<h1 style="margin:0;font-family:\'Playfair Display\';font-size:24px;">PITCH DECK</h1>')+'</td><td style="width:50%;text-align:right;"><div style="font-weight:700;font-size:16px;">'+(metadados.agencia||"N/A")+'</div><div style="font-size:10px;color:#666;">AMI: '+(metadados.ami||"N/A")+'</div></td></tr></table>';
-    h+='<table style="width:100%;margin-bottom:25px;table-layout:fixed;border-collapse:collapse;"><tr><td style="width:50%;padding-right:10px;"><div style="background:#fafafa;padding:15px;border:1px solid #eee;border-left:3px solid #d4af37;"><div style="font-weight:700;font-size:10px;color:#888;margin-bottom:10px;">Ativo</div><b>Ref:</b> '+(metadados.ref||"N/A")+'<br><b>Local:</b> '+(metadados.local||"N/A")+'<br><b>Target:</b> '+(metadados.preco||"N/A")+'</div></td><td style="width:50%;padding-left:10px;"><div style="background:#fafafa;padding:15px;border:1px solid #eee;border-left:3px solid #d4af37;"><div style="font-weight:700;font-size:10px;color:#888;margin-bottom:10px;">Titular</div><b>Nome:</b> '+(metadados.nomeProp||"N/A")+'<br><b>Contacto:</b> '+(metadados.contactoProp||"N/A")+'</div></td></tr></table>';
-    h+='<div style="margin-bottom:30px;border:1px solid #e0e0e0;padding:15px;"><div style="font-weight:700;font-size:11px;border-bottom:1px solid #ccc;margin-bottom:10px;">Legal</div><table style="width:100%;font-size:11px;">';
-    for(var i=1;i<docKeys.length;i+=2){var d1=docKeys[i],d2=docKeys[i+1],s1=docsApp[d1.key]?'<b style="color:#27ae60">OK</b>':'<b style="color:#d35400">Pendente</b>',s2=d2?(docsApp[d2.key]?'<b style="color:#27ae60">OK</b>':'<b style="color:#d35400">Pendente</b>'):'';h+='<tr><td style="width:50%;padding:4px 0;">'+d1.txt+': '+s1+'</td><td style="width:50%;padding:4px 0;">'+(d2?d2.txt+': '+s2:'')+'</td></tr>';}
-    h+='</table></div><div style="page-break-before:auto;"></div>';
-    if(memoriaApp.length>0) h+='<div style="font-family:\'Playfair Display\';font-size:16px;color:#d4af37;border-bottom:1px solid #d4af37;margin-bottom:20px;">Mapeamento Visual</div>';
-    memoriaApp.forEach(function(it,idx){var tf=it.texto.replace(/\n/g,'<br>');if(tf==="")tf="Sem dados.";h+='<table style="width:100%;table-layout:fixed;margin-bottom:25px;border-bottom:1px solid #f0f0f0;padding-bottom:15px;"><tr><td style="width:50%;vertical-align:top;"><div style="width:100%;height:200px;background-image:url(\''+it.imagem+'\');background-size:cover;background-position:center;"></div></td><td style="width:4%;"></td><td style="width:46%;vertical-align:top;padding-top:5px;"><div style="border-bottom:1px solid #e0e0e0;margin-bottom:8px;"><span style="color:#d4af37;font-size:10px;font-weight:600;">'+it.categoria+'</span><span style="color:#999;font-size:10px;float:right;">REF. 0'+(idx+1)+'</span></div><div style="font-family:\'Playfair Display\';line-height:1.5;">'+tf+'</div><div style="font-size:8px;color:#888;margin-top:10px;font-family:monospace;">'+it.dataHora+'<br>'+it.coordenadas+'</div></td></tr></table>';});
-    if(temAssinatura&&assinaturaSalvaBase64!=="") h+='<div style="text-align:center;margin-top:30px;"><img src="'+assinaturaSalvaBase64+'" style="max-height:100px;"><div style="font-size:11px;color:#666;">Aprovação Executiva</div></div>';
-    var anx="";for(var k=1;k<docKeys.length;k++){var dk=docKeys[k];if(docsApp[dk.key])anx+='<div style="page-break-inside:avoid;margin-bottom:30px;border:1px solid #e0e0e0;padding:15px;"><div style="font-weight:700;font-size:12px;border-bottom:1px solid #d4af37;margin-bottom:15px;">Anexo: '+dk.txt+'</div><img src="'+docsApp[dk.key]+'" style="max-width:100%;max-height:600px;display:block;margin:0 auto;"></div>';}
-    if(anx!=="") h+='<div style="page-break-before:always;padding-top:20px;"></div><div style="font-family:\'Playfair Display\';font-size:16px;color:#d4af37;border-bottom:1px solid #d4af37;margin-bottom:20px;">Dossiê Legal</div>'+anx;
-    h+='</div>'; z.innerHTML=h; window.scrollTo(0,0);
-    setTimeout(function(){try{html2pdf().set({margin:,filename:nf,image:{type:'jpeg',quality:0.95},html2canvas:{scale:1.5,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(z).save().then(function(){z.style.display='none';z.innerHTML='';btn.innerText="GERAR PITCH DECK (PDF)";btn.disabled=false;});}catch(e){alert("Erro: "+e.message);btn.innerText="GERAR PITCH DECK (PDF)";btn.disabled=false;}},1000); 
-});
-renderizarDashboard();
-</script>
+        function guardarNoCRM() {
+            if(activeIndex === -1) return;
+            crmData[activeIndex] = { id: crmData[activeIndex].id, titulo: metadados.local || metadados.ref || "Target", data: crmData[activeIndex].data, meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64 };
+            try { localStorage.setItem('pov_crm_master', JSON.stringify(crmData)); } catch(e) {}
+            renderizarDashboard();
+        }
+
+        function renderizarDashboard() {
+            listaCRM.innerHTML = "";
+            if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:11px;'>Sem pastas ativas.</p>"; return; }
+            crmData.forEach(function(p, i) {
+                var div = document.createElement('div'); div.className = "crm-item";
+                div.innerHTML = '<div><div class="crm-title">'+p.titulo+'</div><div class="crm-ref">'+p.data+' | '+(p.fotos?p.fotos.length:0)+' Img</div></div><div style="color:var(--gold-pov);font-size:16px;">➔</div>';
+                div.onclick = function() { abrirPasta(i); };
+                listaCRM.appendChild(div);
+            });
+        }
+
+        function abrirPasta(idx) {
+            activeIndex = idx; var p = crmData[idx];
+            metadados = p.meta || {}; docsApp = p.docs || {}; memoriaApp = p.fotos || []; assinaturaSalvaBase64 = p.assinatura || "";
+            mapMeta.forEach(function(b){ var el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
+            docKeys.forEach(function(d){ var t = document.getElementById('lblText_'+d.key); if(t){ if(docsApp[d.key]){ t.innerText = "✅ "+d.txt; t.classList.add('loaded'); } else { t.innerText = d.txt; t.classList.remove('loaded'); } } });
+            
+            uiDashboard.style.display = "none"; uiEditor.style.display = "block"; window.scrollTo(0,0);
+            
+            var log = document.getElementById('log-ui'); log.innerHTML = "";
+            if(memoriaApp.length === 0) log.innerHTML = "Sem registos.";
+            memoriaApp.forEach(function(it, i) { log.innerHTML += '<div class="foto-item-ui"><div class="ui-img-box" style="background-image:url(\''+it.imagem+'\');"></div><div style="flex:1;"><div class="badge-categoria">'+it.categoria+'</div><p>'+(it.texto||"OK")+'</p></div></div>'; });
+
+            setTimeout(function(){
+                if(ctxAssinatura) {
+                    canvasAssinatura.width = canvasAssinatura.parentElement.getBoundingClientRect().width - 40; canvasAssinatura.height = 150;
+                    if(assinaturaSalvaBase64 !== "") { var img = new Image(); img.onload = function(){ ctxAssinatura.drawImage(img,0,0); }; img.src = assinaturaSalvaBase64; temAssinatura=true; }
+                }
+            }, 150);
+        }
+
+        function adicionarTag(t) { var v = document.getElementById('visorNota'); v.value = v.value.trim() + (v.value.trim()?'\n':'') + '✦ ' + t; }
+
+        mapMeta.forEach(function(b){ var el = document.getElementById(b.id); if(el) el.addEventListener('input', function(e){ metadados[b.key] = e.target.value; guardarNoCRM(); }); });
+
+        function setupU(ig, ic, dk, txt) {
+            var h = function(e){
+                var f = e.target.files; if(!f) return;
+                var r = new FileReader(); r.onload = function(ev){
+                    var img = new Image(); img.onload = function(){
+                        var cv = document.createElement('canvas'), w = img.width, h = img.height, mw = dk==='logo'?400:800;
+                        if(w>mw){ h = Math.round(h*mw/w); w = mw; } cv.width = w; cv.height = h; cv.getContext('2d').drawImage(img,0,0,w,h);
+                        docsApp[dk] = cv.toDataURL('image/jpeg', 0.8); guardarNoCRM();
+                        document.getElementById('lblText_'+dk).innerText = "✅ "+txt; document.getElementById('lblText_'+dk).classList.add('loaded');
+                    }; img.src = ev.target.result;
+                }; r.readAsDataURL(f);
+            };
+            if(document.getElementById(ig)) document.getElementById(ig).addEventListener('change', h);
+            if(document.getElementById(ic)) document.getElementById(ic).addEventListener('change', h);
+        }
+        docKeys.forEach(function(d){ setupU('file'+d.key.charAt(0).toUpperCase()+d.key.slice(1)+'_gal', 'file'+d.key.charAt(0).toUpperCase()+d.key.slice(1)+'_cam', d.key, d.txt); });
+
+        var hAI = function(e){
+            var f = e.target.files; if(!f) return; document.getElementById('micStatus').innerText = "Edge AI...";
+            var r = new FileReader(); r.onload = function(ev){
+                var img = new Image(); img.onload = function(){
+                    var cv = document.getElementById('processing-canvas-edge'), ctx = cv.getContext('2d'), w = img.width, h = img.height;
+                    if(w>1200){ h = Math.round(h*1200/w); w = 1200; } cv.width = w; cv.height = h; ctx.drawImage(img,0,0,w,h);
+                    try { var idt = ctx.getImageData(0,0,w,h), d = idt.data; for(var i=0;i<d.length;i+=4){ var rc=d[i],gc=d[i+1],bc=d[i+2]; rc=((rc/255-0.5)*1.18+0.5)*255+32; gc=((gc/255-0.5)*1.18+0.5)*255+22; bc=((bc/255-0.5)*1.18+0.5)*255+5; d[i]=rc>255?255:(rc<0?0:rc); d[i+1]=gc>255?255:(gc<0?0:gc); d[i+2]=bc>255?255:(bc<0?0:bc); } ctx.putImageData(idt,0,0); } catch(err){}
+                    tempImagemBase64 = cv.toDataURL('image/jpeg', 0.85); document.getElementById('previewImagem').src = tempImagemBase64; document.getElementById('previewImagem').style.display = "block";
+                    document.getElementById('painelDitado').style.display = "flex"; document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = ""; document.getElementById('guardarBtn').style.display = "block"; document.getElementById('micStatus').innerText = "Sucesso.";
+                }; img.src = ev.target.result;
+            }; r.readAsDataURL(f);
+        };
+        document.getElementById('camera-input-edge').addEventListener('change', hAI); document.getElementById('gallery-input-edge').addEventListener('change', hAI);
+
+        document.getElementById('guardarBtn').addEventListener('click', function(){
+            this.style.display="none"; document.getElementById('micStatus').innerText="GPS...";
+            var fn = function(c){ memoriaApp.push({categoria:document.getElementById('selectDivisao').value,imagem:tempImagemBase64,texto:document.getElementById('visorNota').value.trim(),coordenadas:c,dataHora:new Date().toLocaleDateString()}); guardarNoCRM(); document.getElementById('previewImagem').style.display="none"; document.getElementById('painelDitado').style.display="none"; document.getElementById('painelTags').style.display="none"; abrirPasta(activeIndex); };
+            if(navigator.geolocation) navigator.geolocation.getCurrentPosition(function(p){ fn('LAT: '+p.coords.latitude.toFixed(5)+' | LON: '+p.coords.longitude.toFixed(5)); }, function(){ fn("Sem GPS"); }); else fn("Sem GPS");
+        });
+
+        if(canvasAssinatura) {
+            var gp = function(e){ var r = canvasAssinatura.getBoundingClientRect(), cx = e.touches?e.touches.clientX:e.clientX, cy = e.touches?e.touches.clientY:e.clientY; return {x:cx-r.left,y:cy-r.top}; };
+            var md = function(e){ assinando=true; var p=gp(e); if(ctxAssinatura){ ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x,p.y); } };
+            var mm = function(e){ if(assinando && ctxAssinatura){ var p=gp(e); ctxAssinatura.lineTo(p.x,p.y); ctxAssinatura.stroke(); temAssinatura=true; } };
+            var mu = function(){ assinando=false; if(temAssinatura){ assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } };
+            canvasAssinatura.addEventListener('mousedown', md); canvasAssinatura.addEventListener('mousemove', mm); canvasAssinatura.addEventListener('mouseup', mu);
+            canvasAssinatura.addEventListener('touchstart', function(e){ e.preventDefault(); md(e); },{passive:false}); canvasAssinatura.addEventListener('touchmove', function(e){ e.preventDefault(); mm(e); },{passive:false}); canvasAssinatura.addEventListener('touchend', mu);
+        }
+
+        document.getElementById('micLocal').addEventListener('click', function(){ if(!window.SpeechRecognition && !window.webkitSpeechRecognition)return; var r=new (window.SpeechRecognition||window.webkitSpeechRecognition)(); r.lang='pt-PT'; r.onresult=function(e){ var t=document.getElementById('inputLocal'); t.value=(t.value+" "+e.results.transcript).trim(); metadados.local=t.value; guardarNoCRM(); }; r.start(); });
+        document.getElementById('btnIconeMic').addEventListener('click', function(){ if(!window.SpeechRecognition && !window.webkitSpeechRecognition)return; var r=new (window.SpeechRecognition||window.webkitSpeechRecognition)(); r.lang='pt-PT'; r.onresult=function(e){ var t=document.getElementById('visorNota'); t.value=(t.value+" "+e.results.transcript).trim(); document.getElementById('guardarBtn').style.display="block"; }; r.start(); });
+
+        document.getElementById('gerarPdfBtn').addEventListener('click', function(){
+            var btn=this; btn.innerText="⏳ A COMPILAR..."; btn.disabled=true;
+            var z=document.getElementById('pdf-render-zone'); z.style.display='block';
+            var nf = document.getElementById('inputNomePdf').value.trim() || 'POV_Pitch.pdf'; if(nf.indexOf('.pdf')===-1) nf+='.pdf';
+            
+            var h = '<div style="font-family:Montserrat,sans-serif;color:#000;width:100%;font-size:12px;">';
+            h += '<table style="width:100%;border-bottom:2px solid #d4af37;padding-bottom:15px;margin-bottom:20px;"><tr><td style="width:50%;">'+(docsApp.logo?'<img src="'+docsApp.logo+'" style="max-height:50px;">':'<h2>PITCH DECK</h2>')+'</td><td style="width:50%;text-align:right;"><b>'+(metadados.agencia||"N/A")+'</b><br>AMI: '+(metadados.ami||"N/A")+'</td></tr></table>';
+            h += '<div style="display:flex;gap:15px;margin-bottom:25px;"><div style="flex:1;background:#fafafa;padding:15px;border-left:3px solid #d4af37;"><b>Ativo</b><br>Ref: '+(metadados.ref||"N/A")+'<br>Local: '+(metadados.local||"N/A")+'<br>Preço: '+(metadados.preco||"N/A")+'</div><div style="flex:1;background:#fafafa;padding:15px;border-left:3px solid #d4af37;"><b>Titular</b><br>Nome: '+(metadados.nomeProp||"N/A")+'<br>Cont: '+(metadados.contactoProp||"N/A")+'</div></div>';
+            h += '<div style="margin-bottom:30px;padding:15px;border:1px solid #eee;"><b>Conformidade:</b> ID('+(docsApp.ccF?'OK':'Pendente')+'), Caderneta('+(docsApp.caderneta?'OK':'Pendente')+'), Registo('+(docsApp.registo?'OK':'Pendente')+')</div><div style="page-break-before:auto;"></div>';
+            
+            memoriaApp.forEach(function(it){ h+='<div style="margin-bottom:20px;border-bottom:1px solid #eee;padding-bottom:10px;"><div style="color:#d4af37;font-weight:bold;margin-bottom:5px;">'+it.categoria+'</div><img src="'+it.imagem+'" style="max-width:100%;max-height:300px;margin-bottom:10px;"><div style="font-size:11px;">'+it.texto.replace(/\n/g,'<br>')+'</div></div>'; });
+            if(assinaturaSalvaBase64!=="") h+='<div style="text-align:center;margin-top:30px;"><img src="'+assinaturaSalvaBase64+'" style="max-height:80px;"><br>Aprovação</div>';
+            h += '</div>'; z.innerHTML = h; window.scrollTo(0,0);
+            
+            setTimeout(function(){ try{ html2pdf().set({margin:15,filename:nf,image:{type:'jpeg',quality:0.95},html2canvas:{scale:1.5},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(z).save().then(function(){ z.style.display='none'; z.innerHTML=''; btn.innerText="GERAR PITCH DECK (PDF)"; btn.disabled=false; }); }catch(e){ btn.disabled=false; } }, 1000);
+        });
+    </script>
 </body>
 </html>
